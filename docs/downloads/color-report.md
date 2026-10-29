@@ -2,17 +2,17 @@
 
 Fecha: 2026-10-29.
 
-## Punto de partida: 9 bridges + 10 enderezadas.
+## Punto de partida: 8 bridges + 11 enderezadas.
 
-Es el mejor valor puntual del desarrollo T2–T3 en el perfil equilibrado, con igual peso para OTP y OTD. Mantener 10 bridges como control cercano permite revisar el ratio al optimizar las cartas concretas. El fixing de cuatro colores se informa aparte: no se fuerza a gastar cuatro colores si la mano no los necesita.
+Es el mejor valor puntual del desarrollo T2–T3 en el perfil equilibrado, con igual peso para OTP y OTD. Mantener 9 bridges como control cercano permite revisar el ratio al optimizar las cartas concretas. El fixing de cuatro colores se informa aparte: no se fuerza a gastar cuatro colores si la mano no los necesita.
 
-Recomendación de trabajo entre las 30 bases probadas; no óptimo global ni tasa de victoria.
+Recomendación de trabajo entre las 25 bases probadas (8–12 bridges); no óptimo global ni tasa de victoria.
 
-Piloto: 120.000 partidas (2.000 × 30 bases × OTP/OTD). Confirmación con semilla independiente: 600,000 partidas (10,000 por celda). No se suman ambas muestras. Horizonte T1–T5.
+Piloto: 100.000 partidas (2.000 × 25 bases × OTP/OTD). Confirmación con semilla independiente: 500.000 partidas (10.000 por celda). No se suman ambas muestras. Horizonte T1–T5.
 
 ## Qué significa cada prioridad
 
-Para cada ratio 9–14 se busca una base representativa entre las seis parejas WUBR de bridges y las cuatro tierras artefacto monocolores. Siempre 19 tierras, cuatro Boulder, las mismas 41 cartas no tierra y máximo cuatro copias por nombre. Sin básicas ni Citadel en este experimento sin rival.
+Para cada ratio 8–12 se busca una base representativa entre las seis parejas WUBR de bridges y las cuatro tierras artefacto monocolores. Siempre 19 tierras, cuatro Boulder, las mismas 41 cartas no tierra y máximo cuatro copias por nombre. Sin básicas ni Citadel en este experimento sin rival.
 
 La función de selección es Σ w(c) × [1 − C(60−fuentes(c),9)/C(60,9)]. Equilibrado: pesos 1/1/1/1. Cada perfil temprano da peso 3 al color elegido y 1 a los demás. Es una búsqueda exacta de un sustituto simple para generar hipótesis, no la probabilidad de jugar una curva ni una optimización completa de cada composición. Los desempates priorizan la menor fuente de color, luego enderezadas azules, negras y un orden estable de cartas. Equilibrado balancea fuentes totales, no tiempos de acceso idénticos; sus enderezadas favorecen el motor U/B. Estos desempates y cada composición están expuestos para revisar ese supuesto en la siguiente etapa.
 
@@ -22,11 +22,11 @@ El mismo piloto juega todos los perfiles: no cambia sus prioridades para favorec
 
 | Perfil | Mejor desarrollo T2–T3 (media OTP/OTD) | Mejor acceso 4 colores T3 |
 | --- | ---: | ---: |
-| Equilibrado | 9 bridges | 14 bridges |
-| Azul temprano | 9 bridges | 14 bridges |
+| Equilibrado | 8 bridges | 12 bridges |
+| Azul temprano | 8 bridges | 10 bridges |
 | Blanco temprano | 10 bridges | 11 bridges |
-| Negro temprano | 9 bridges | 14 bridges |
-| Rojo temprano | 9 bridges | 14 bridges |
+| Negro temprano | 8 bridges | 10 bridges |
+| Rojo temprano | 8 bridges | 11 bridges |
 
 Ganadores por estimación puntual, sin afirmar que cada diferencia sea estadísticamente concluyente.
 
@@ -34,23 +34,21 @@ Ganadores por estimación puntual, sin afirmar que cada diferencia sea estadíst
 
 | Modo | Bridges | Desarrollo T2–T3 | Amenaza hasta T3 | Cryogen hasta T2 | 4 colores hasta T3 | Operativo Boulder hasta T3 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| OTP | 8 | 71.10% | 58.23% | 20.85% | 57.07% | 48.89% |
 | OTP | 9 | 70.35% | 57.18% | 19.85% | 57.33% | 48.75% |
 | OTP | 10 | 69.99% | 55.92% | 19.26% | 57.25% | 48.58% |
 | OTP | 11 | 69.47% | 55.20% | 17.84% | 57.53% | 48.42% |
 | OTP | 12 | 67.54% | 52.26% | 16.48% | 57.99% | 48.02% |
-| OTP | 13 | 67.07% | 51.08% | 15.37% | 57.86% | 47.75% |
-| OTP | 14 | 66.37% | 48.15% | 14.13% | 58.90% | 47.36% |
+| OTD | 8 | 78.77% | 63.13% | 22.98% | 61.52% | 53.59% |
 | OTD | 9 | 77.88% | 61.79% | 21.92% | 61.75% | 53.43% |
 | OTD | 10 | 77.12% | 60.60% | 21.28% | 61.49% | 53.31% |
 | OTD | 11 | 76.80% | 59.67% | 19.69% | 61.31% | 53.01% |
 | OTD | 12 | 75.02% | 56.69% | 18.41% | 61.68% | 52.71% |
-| OTD | 13 | 74.14% | 54.95% | 17.04% | 61.29% | 52.31% |
-| OTD | 14 | 72.81% | 51.75% | 15.47% | 62.36% | 52.01% |
 
-### Qué se gana y qué se pierde al subir de 9 a 14
+### Qué se gana y qué se pierde al subir de 8 a 12
 
-- OTP: 4 colores T3 cambia +1.57 pp; desarrollo T2–T3, -3.98 pp; amenaza T3, -9.03 pp; Cryogen T2, -5.72 pp.
-- OTD: 4 colores T3 cambia +0.61 pp; desarrollo T2–T3, -5.07 pp; amenaza T3, -10.04 pp; Cryogen T2, -6.45 pp.
+- OTP: 4 colores T3 cambia +0.92 pp; desarrollo T2–T3, -3.56 pp; amenaza T3, -5.97 pp; Cryogen T2, -4.37 pp.
+- OTD: 4 colores T3 cambia +0.16 pp; desarrollo T2–T3, -3.75 pp; amenaza T3, -6.44 pp; Cryogen T2, -4.57 pp.
 
 Para desarrollo sin rival, los puntos anteriores favorecen el extremo bajo del rango. La pequeña ganancia de cobertura de cuatro colores no recupera automáticamente las jugadas perdidas. Más bridges también implica más tierras indestructibles; falta simular el hate para ponerle un valor a esa ventaja. Al variar el ratio se vuelve a elegir la base representativa: estos cambios combinan entrada girada y la composición seleccionada, no aíslan causalmente el efecto de una carta concreta.
 
@@ -61,36 +59,30 @@ A−B usa los mismos índices aleatorios de barajado. El intervalo normal al 95%
 
 | Modo | Comparación | Métrica | Diferencia | IC 95% (pp) |
 | --- | --- | --- | ---: | ---: |
-| OTP | 9 − 10 | needed_t2_t3 | +0.36 pp | [-0.03, +0.75] |
-| OTP | 9 − 10 | threat_t3 | +1.26 pp | [+0.83, +1.69] |
-| OTP | 9 − 10 | all4_t3 | +0.08 pp | [-0.38, +0.54] |
-| OTP | 9 − 11 | needed_t2_t3 | +0.88 pp | [+0.21, +1.55] |
-| OTP | 9 − 11 | threat_t3 | +1.98 pp | [+1.30, +2.66] |
-| OTP | 9 − 11 | all4_t3 | -0.20 pp | [-0.83, +0.43] |
-| OTP | 9 − 12 | needed_t2_t3 | +2.81 pp | [+2.02, +3.60] |
-| OTP | 9 − 12 | threat_t3 | +4.92 pp | [+4.13, +5.71] |
-| OTP | 9 − 12 | all4_t3 | -0.66 pp | [-1.34, +0.02] |
-| OTP | 9 − 13 | needed_t2_t3 | +3.28 pp | [+2.40, +4.16] |
-| OTP | 9 − 13 | threat_t3 | +6.10 pp | [+5.23, +6.97] |
-| OTP | 9 − 13 | all4_t3 | -0.53 pp | [-1.23, +0.17] |
-| OTP | 9 − 14 | needed_t2_t3 | +3.98 pp | [+3.02, +4.94] |
-| OTP | 9 − 14 | threat_t3 | +9.03 pp | [+8.07, +9.99] |
-| OTP | 9 − 14 | all4_t3 | -1.57 pp | [-2.32, -0.82] |
-| OTD | 9 − 10 | needed_t2_t3 | +0.76 pp | [+0.39, +1.13] |
-| OTD | 9 − 10 | threat_t3 | +1.19 pp | [+0.76, +1.62] |
-| OTD | 9 − 10 | all4_t3 | +0.26 pp | [-0.18, +0.70] |
-| OTD | 9 − 11 | needed_t2_t3 | +1.08 pp | [+0.45, +1.71] |
-| OTD | 9 − 11 | threat_t3 | +2.12 pp | [+1.44, +2.80] |
-| OTD | 9 − 11 | all4_t3 | +0.44 pp | [-0.16, +1.04] |
-| OTD | 9 − 12 | needed_t2_t3 | +2.86 pp | [+2.10, +3.62] |
-| OTD | 9 − 12 | threat_t3 | +5.10 pp | [+4.29, +5.91] |
-| OTD | 9 − 12 | all4_t3 | +0.07 pp | [-0.59, +0.73] |
-| OTD | 9 − 13 | needed_t2_t3 | +3.74 pp | [+2.90, +4.58] |
-| OTD | 9 − 13 | threat_t3 | +6.84 pp | [+5.95, +7.73] |
-| OTD | 9 − 13 | all4_t3 | +0.46 pp | [-0.23, +1.15] |
-| OTD | 9 − 14 | needed_t2_t3 | +5.07 pp | [+4.16, +5.98] |
-| OTD | 9 − 14 | threat_t3 | +10.04 pp | [+9.06, +11.02] |
-| OTD | 9 − 14 | all4_t3 | -0.61 pp | [-1.35, +0.13] |
+| OTP | 8 − 9 | needed_t2_t3 | +0.75 pp | [+0.45, +1.05] |
+| OTP | 8 − 9 | threat_t3 | +1.05 pp | [+0.76, +1.34] |
+| OTP | 8 − 9 | all4_t3 | -0.26 pp | [-0.53, +0.01] |
+| OTP | 8 − 10 | needed_t2_t3 | +1.11 pp | [+0.63, +1.59] |
+| OTP | 8 − 10 | threat_t3 | +2.31 pp | [+1.81, +2.81] |
+| OTP | 8 − 10 | all4_t3 | -0.18 pp | [-0.70, +0.34] |
+| OTP | 8 − 11 | needed_t2_t3 | +1.63 pp | [+0.92, +2.34] |
+| OTP | 8 − 11 | threat_t3 | +3.03 pp | [+2.30, +3.76] |
+| OTP | 8 − 11 | all4_t3 | -0.46 pp | [-1.12, +0.20] |
+| OTP | 8 − 12 | needed_t2_t3 | +3.56 pp | [+2.74, +4.38] |
+| OTP | 8 − 12 | threat_t3 | +5.97 pp | [+5.14, +6.80] |
+| OTP | 8 − 12 | all4_t3 | -0.92 pp | [-1.62, -0.22] |
+| OTD | 8 − 9 | needed_t2_t3 | +0.89 pp | [+0.61, +1.17] |
+| OTD | 8 − 9 | threat_t3 | +1.34 pp | [+1.01, +1.67] |
+| OTD | 8 − 9 | all4_t3 | -0.23 pp | [-0.51, +0.05] |
+| OTD | 8 − 10 | needed_t2_t3 | +1.65 pp | [+1.19, +2.11] |
+| OTD | 8 − 10 | threat_t3 | +2.53 pp | [+2.00, +3.06] |
+| OTD | 8 − 10 | all4_t3 | +0.03 pp | [-0.48, +0.54] |
+| OTD | 8 − 11 | needed_t2_t3 | +1.97 pp | [+1.29, +2.65] |
+| OTD | 8 − 11 | threat_t3 | +3.46 pp | [+2.73, +4.19] |
+| OTD | 8 − 11 | all4_t3 | +0.21 pp | [-0.43, +0.85] |
+| OTD | 8 − 12 | needed_t2_t3 | +3.75 pp | [+2.96, +4.54] |
+| OTD | 8 − 12 | threat_t3 | +6.44 pp | [+5.60, +7.28] |
+| OTD | 8 − 12 | all4_t3 | -0.16 pp | [-0.84, +0.52] |
 
 ## Definiciones y denominadores
 
@@ -119,52 +111,47 @@ Familiar supone que el rival tiene una carta para descartar: no se inventa robo 
 
 ### Equilibrado
 
+- 8 bridges: 3 Razortide Bridge; 3 Drossforge Bridge; 2 Rustvale Bridge; 2 Ancient Den; 4 Seat of the Synod; 4 Vault of Whispers; 1 Great Furnace.
 - 9 bridges: 3 Razortide Bridge; 3 Drossforge Bridge; 3 Rustvale Bridge; 1 Ancient Den; 4 Seat of the Synod; 4 Vault of Whispers; 1 Great Furnace.
 - 10 bridges: 4 Razortide Bridge; 3 Drossforge Bridge; 3 Rustvale Bridge; 4 Seat of the Synod; 4 Vault of Whispers; 1 Great Furnace.
 - 11 bridges: 4 Razortide Bridge; 4 Drossforge Bridge; 3 Rustvale Bridge; 4 Seat of the Synod; 4 Vault of Whispers.
 - 12 bridges: 4 Razortide Bridge; 4 Drossforge Bridge; 4 Rustvale Bridge; 4 Seat of the Synod; 3 Vault of Whispers.
-- 13 bridges: 3 Razortide Bridge; 1 Mistvault Bridge; 4 Drossforge Bridge; 4 Rustvale Bridge; 1 Goldmire Bridge; 4 Seat of the Synod; 2 Vault of Whispers.
-- 14 bridges: 3 Razortide Bridge; 2 Mistvault Bridge; 4 Drossforge Bridge; 4 Rustvale Bridge; 1 Goldmire Bridge; 4 Seat of the Synod; 1 Vault of Whispers.
 
 ### Azul temprano
 
+- 8 bridges: 4 Razortide Bridge; 1 Mistvault Bridge; 3 Silverbluff Bridge; 1 Ancient Den; 4 Seat of the Synod; 4 Vault of Whispers; 2 Great Furnace.
 - 9 bridges: 4 Razortide Bridge; 2 Mistvault Bridge; 1 Rustvale Bridge; 2 Silverbluff Bridge; 4 Seat of the Synod; 4 Vault of Whispers; 2 Great Furnace.
 - 10 bridges: 4 Razortide Bridge; 2 Mistvault Bridge; 2 Rustvale Bridge; 2 Silverbluff Bridge; 4 Seat of the Synod; 4 Vault of Whispers; 1 Great Furnace.
 - 11 bridges: 4 Razortide Bridge; 1 Mistvault Bridge; 1 Drossforge Bridge; 2 Rustvale Bridge; 3 Silverbluff Bridge; 4 Seat of the Synod; 4 Vault of Whispers.
 - 12 bridges: 4 Razortide Bridge; 2 Mistvault Bridge; 1 Drossforge Bridge; 2 Rustvale Bridge; 3 Silverbluff Bridge; 4 Seat of the Synod; 3 Vault of Whispers.
-- 13 bridges: 4 Razortide Bridge; 3 Mistvault Bridge; 2 Drossforge Bridge; 2 Rustvale Bridge; 2 Silverbluff Bridge; 4 Seat of the Synod; 2 Vault of Whispers.
-- 14 bridges: 4 Razortide Bridge; 4 Mistvault Bridge; 2 Drossforge Bridge; 3 Rustvale Bridge; 1 Silverbluff Bridge; 4 Seat of the Synod; 1 Vault of Whispers.
 
 ### Blanco temprano
 
+- 8 bridges: 1 Razortide Bridge; 4 Rustvale Bridge; 3 Goldmire Bridge; 4 Ancient Den; 4 Seat of the Synod; 2 Vault of Whispers; 1 Great Furnace.
 - 9 bridges: 2 Razortide Bridge; 1 Drossforge Bridge; 4 Rustvale Bridge; 2 Goldmire Bridge; 4 Ancient Den; 4 Seat of the Synod; 2 Vault of Whispers.
 - 10 bridges: 2 Razortide Bridge; 1 Drossforge Bridge; 4 Rustvale Bridge; 3 Goldmire Bridge; 3 Ancient Den; 4 Seat of the Synod; 2 Vault of Whispers.
 - 11 bridges: 2 Razortide Bridge; 2 Drossforge Bridge; 4 Rustvale Bridge; 3 Goldmire Bridge; 3 Ancient Den; 4 Seat of the Synod; 1 Vault of Whispers.
 - 12 bridges: 2 Razortide Bridge; 2 Drossforge Bridge; 4 Rustvale Bridge; 4 Goldmire Bridge; 3 Ancient Den; 4 Seat of the Synod.
-- 13 bridges: 3 Razortide Bridge; 2 Drossforge Bridge; 4 Rustvale Bridge; 4 Goldmire Bridge; 2 Ancient Den; 4 Seat of the Synod.
-- 14 bridges: 4 Razortide Bridge; 2 Drossforge Bridge; 4 Rustvale Bridge; 4 Goldmire Bridge; 1 Ancient Den; 3 Seat of the Synod; 1 Vault of Whispers.
 
 ### Negro temprano
 
+- 8 bridges: 1 Mistvault Bridge; 4 Drossforge Bridge; 3 Goldmire Bridge; 2 Ancient Den; 4 Seat of the Synod; 4 Vault of Whispers; 1 Great Furnace.
 - 9 bridges: 1 Razortide Bridge; 1 Mistvault Bridge; 4 Drossforge Bridge; 3 Goldmire Bridge; 1 Ancient Den; 4 Seat of the Synod; 4 Vault of Whispers; 1 Great Furnace.
 - 10 bridges: 2 Razortide Bridge; 4 Drossforge Bridge; 4 Goldmire Bridge; 4 Seat of the Synod; 4 Vault of Whispers; 1 Great Furnace.
 - 11 bridges: 1 Razortide Bridge; 1 Mistvault Bridge; 4 Drossforge Bridge; 2 Rustvale Bridge; 3 Goldmire Bridge; 4 Seat of the Synod; 4 Vault of Whispers.
 - 12 bridges: 2 Mistvault Bridge; 4 Drossforge Bridge; 2 Rustvale Bridge; 4 Goldmire Bridge; 4 Seat of the Synod; 3 Vault of Whispers.
-- 13 bridges: 3 Mistvault Bridge; 4 Drossforge Bridge; 2 Rustvale Bridge; 4 Goldmire Bridge; 4 Seat of the Synod; 2 Vault of Whispers.
-- 14 bridges: 1 Razortide Bridge; 3 Mistvault Bridge; 4 Drossforge Bridge; 2 Rustvale Bridge; 4 Goldmire Bridge; 3 Seat of the Synod; 2 Vault of Whispers.
 
 ### Rojo temprano
 
+- 8 bridges: 3 Drossforge Bridge; 4 Rustvale Bridge; 1 Silverbluff Bridge; 1 Ancient Den; 4 Seat of the Synod; 2 Vault of Whispers; 4 Great Furnace.
 - 9 bridges: 1 Razortide Bridge; 4 Drossforge Bridge; 4 Rustvale Bridge; 4 Seat of the Synod; 2 Vault of Whispers; 4 Great Furnace.
 - 10 bridges: 1 Razortide Bridge; 4 Drossforge Bridge; 4 Rustvale Bridge; 1 Silverbluff Bridge; 4 Seat of the Synod; 2 Vault of Whispers; 3 Great Furnace.
 - 11 bridges: 1 Razortide Bridge; 4 Drossforge Bridge; 4 Rustvale Bridge; 1 Goldmire Bridge; 1 Silverbluff Bridge; 4 Seat of the Synod; 1 Vault of Whispers; 3 Great Furnace.
 - 12 bridges: 4 Drossforge Bridge; 4 Rustvale Bridge; 2 Goldmire Bridge; 2 Silverbluff Bridge; 4 Seat of the Synod; 3 Great Furnace.
-- 13 bridges: 4 Drossforge Bridge; 4 Rustvale Bridge; 2 Goldmire Bridge; 3 Silverbluff Bridge; 4 Seat of the Synod; 2 Great Furnace.
-- 14 bridges: 4 Drossforge Bridge; 4 Rustvale Bridge; 2 Goldmire Bridge; 4 Silverbluff Bridge; 3 Seat of the Synod; 1 Vault of Whispers; 1 Great Furnace.
 
 ## Alcance y próximo paso
 
-Optimizar qué bridges y tierras enderezadas forman la base de 9/10; conservar 10 bridges como sensibilidad. Después evaluar Citadel y hate de artefactos. La cantidad elegida puede revisarse si una composición mejor o una política de juego distinta cambia el resultado.
+Optimizar qué bridges y tierras enderezadas forman la base de 8/11; conservar 9 bridges como sensibilidad. Después evaluar Citadel y hate de artefactos. La cantidad elegida puede revisarse si una composición mejor o una política de juego distinta cambia el resultado.
 
 Las tasas de mulligan del modelo anterior no se pueden mezclar sin más con las curvas actuales: ahora existen scry, robos adicionales y una política de fondo con colores. La exigencia de dos tierras y la distinción OTP/OTD sí se mantienen.
 

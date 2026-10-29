@@ -17,8 +17,8 @@
     policy: params.get('policy') === 'bridge_t1_then_untapped' ? 'bridge_t1_then_untapped' : 'untapped_first',
     profile: ['balanced', 'blue', 'white', 'black', 'red'].includes(params.get('profile')) ? params.get('profile') : 'balanced',
     weights: requestedWeights.length===4 && requestedWeights.every(w=>Number.isFinite(w)&&w>=0&&w<=1) ? requestedWeights.map(w=>Math.round(w*20)/20) : [1,1,1,1],
-    compositionBridges: [9,10,11,12,13,14].includes(Number(params.get('bridges'))) ? Number(params.get('bridges')) : 10,
-    tab: ['overview', 'parts', 'profiles', 'method', 'documents'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'profiles',
+    compositionBridges: D.structural.config.part_2.bridge_counts.includes(Number(params.get('bridges'))) ? Number(params.get('bridges')) : 10,
+    tab: ['overview', 'parts', 'composition', 'profiles', 'method', 'documents'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'profiles',
   };
   let chartId = 0;
   const cell = (part, lands, mode, bridges = 0, policy = 'untapped_first') => {
@@ -161,6 +161,7 @@
     });
     if (name === 'parts') { renderFixedCharts(); renderPartOne(); renderPartTwo(); }
     if (name === 'profiles') renderProfiles();
+    if (name === 'composition') renderWeights();
     updateURL();
   }
   function renderPartOne() {
@@ -202,7 +203,7 @@
     ] });
   }
   function renderPartTwo() {
-    const counts = [9, 10, 11, 12, 13, 14];
+    const counts = D.structural.config.part_2.bridge_counts;
     const cs = counts.map(b => cell(2, state.lands, state.mode, b, state.policy));
     const definitions = [
       { turn: 1, key: 'capacity_ge1', name: 'T1 · ≥1 maná', color: colors.nineteen },
@@ -210,7 +211,7 @@
       { turn: 3, key: 'capacity_ge3', name: 'T3 · ≥3 manás', color: colors.blue },
     ];
     chart($('ratio-chart'), { title: `Capacidad de maná según bridges, ${state.lands} tierras, ${state.mode}`, labels: counts.map(String), series: definitions.map(d => ({ name: d.name, color: d.color, values: cs.map(c => 100 * probability(c, d.turn, d.key)) })) });
-    const difference = 100 * (probability(cs[5], 2, 'capacity_ge2') - probability(cs[0], 2, 'capacity_ge2'));
+    const difference = 100 * (probability(cs[cs.length-1], 2, 'capacity_ge2') - probability(cs[0], 2, 'capacity_ge2'));
     const delta = $('ratio-delta'); delta.replaceChildren(node('strong', 'ratio-delta-number', points(difference)), node('span', 'ratio-delta-label', `en la probabilidad de tener ≥2 manás en T2 · ${state.mode} · ${state.lands} tierras`));
     $('policy-explainer').textContent = state.policy === 'untapped_first'
       ? 'Si hay una tierra enderezada en mano, se juega antes que un bridge.'
@@ -426,6 +427,7 @@
     state.weights[globalThis.AffinityComposition.colors.indexOf(input.dataset.weight)]=Number(input.value);
     renderWeights(); updateURL();
   }));
+  globalThis.AffinityComposition.counts.forEach(n=>{const option=node('option','',String(n));option.value=n;$('weight-bridges').append(option);});
   $('weight-bridges').addEventListener('change',()=>{state.compositionBridges=Number($('weight-bridges').value);renderWeights();updateURL();});
   $('weight-reset').addEventListener('click',()=>{state.weights=[1,1,1,1];renderWeights();updateURL();});
   $('weight-download').addEventListener('click',()=>{
@@ -436,7 +438,7 @@
     document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
   });
   document.querySelectorAll('a[href="#overview"]').forEach(link => link.addEventListener('click', event => { event.preventDefault(); activateTab('overview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }));
-  addEventListener('hashchange', () => { const tab = location.hash.slice(1); if (['overview', 'parts', 'profiles', 'method', 'documents'].includes(tab)) activateTab(tab); });
+  addEventListener('hashchange', () => { const tab = location.hash.slice(1); if (['overview', 'parts', 'composition', 'profiles', 'method', 'documents'].includes(tab)) activateTab(tab); });
   let resizeTimer;
   addEventListener('resize', () => {
     clearTimeout(resizeTimer);

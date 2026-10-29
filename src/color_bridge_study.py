@@ -18,6 +18,7 @@ import random
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
+BRIDGE_COUNTS = tuple(json.loads((ROOT/'configs/structural_stages.json').read_text())['part_2']['bridge_counts'])
 COLORS = 'WUBR'
 LANDS = {
     'Razortide Bridge': 'WU', 'Mistvault Bridge': 'UB',
@@ -81,7 +82,7 @@ def bounded(total, size):
 
 
 def candidates():
-    """Exact surrogate search; 30 representatives, not full-game optimization.
+    """Exact surrogate search; five profiles per ratio, not full-game optimization.
 
     Maximize sum w_c P(at least one natural c source among 9 raw cards).
     Weight=3 for the priority color, 1 for others; balanced all 1.
@@ -89,7 +90,7 @@ def candidates():
     """
     hit = [1 - comb(60 - s, 9) / comb(60, 9) for s in range(20)]
     out = []
-    for b in range(9, 15):
+    for b in BRIDGE_COUNTS:
         best = {}
         untapped = list(bounded(19 - b, 4))
         for bv in bounded(b, 6):
@@ -567,28 +568,28 @@ def main():
             cell, outcomes = future.result()
             cells.append(cell)
             raw[(cell['candidate'], cell['mode'])] = outcomes
-            print(f'{i+1}/60 {cell["candidate"]} {cell["mode"]}: {time.perf_counter()-began:.1f}s', flush=True)
+            print(f'{i+1}/{len(tasks)} {cell["candidate"]} {cell["mode"]}: {time.perf_counter()-began:.1f}s', flush=True)
     order = {c['id']: i for i, c in enumerate(bases)}
     cells.sort(key=lambda c: (order[c['candidate']], c['mode'] != 'OTP'))
     comparisons = []
     for profile in PROFILES:
         for mode in ('OTP', 'OTD'):
-            for a, b in combinations(range(9, 15), 2):
+            for a, b in combinations(BRIDGE_COUNTS, 2):
                 for metric in ('needed_t2_t3', 'threat_t3', 'all4_t3', 'relic_t2'):
                     comparisons.append({'profile': profile, 'mode': mode, 'a': a, 'b': b,
                                         'metric': metric, **paired(raw[(f'{profile}-{a}', mode)], raw[(f'{profile}-{b}', mode)], metric)})
     data = {'version': '1.0', 'date': '2026-10-29', 'seed': args.seed,
             'n_per_cell': args.trials, 'total_trials': len(cells)*args.trials,
-            'config': {'lands': 19, 'boulders': 4, 'bridges': list(range(9, 15)),
+            'config': {'lands': 19, 'boulders': 4, 'bridges': list(BRIDGE_COUNTS),
                        'horizon': 5, 'keep_min_lands': 2, 'mulligan_floor': 4,
                        'focus_weight': 3, 'other_weight': 1, 'citadels': 0,
                        'opponent': 'no interaction; Familiar opponent can discard',
-                       'scope': '30 surrogate-selected bases, common greedy pilot; not global optimum'},
+                       'scope': f'{len(bases)} surrogate-selected bases, common greedy pilot; not global optimum'},
             'profiles': {k: {'label': v[0], 'focus': v[1]} for k, v in PROFILES.items()},
             'candidates': bases, 'cells': cells, 'paired_comparisons': comparisons,
             'elapsed_seconds': round(time.perf_counter()-began, 2),
             'source_hashes': {path: hashlib.sha256((ROOT/path).read_bytes()).hexdigest()
-                              for path in ('src/color_bridge_study.py', 'data/reference_deck.json')}}
+                              for path in ('src/color_bridge_study.py', 'data/reference_deck.json', 'configs/structural_stages.json')}}
     out = ROOT/args.output
     out.mkdir(parents=True, exist_ok=True)
     (out/'results.json').write_text(json.dumps(data, ensure_ascii=False, indent=2)+'\n')

@@ -15,11 +15,11 @@ HTML/CSS/JavaScript estático, sin servicios externos de gráficos ni instalaci�
 
 ## Estado actual
 
-Prioridad actual: **parte 1, 19/20 tierras; parte 2, ratio de 9–14 bridges; parte 3, colores y spells.** Ya hay un control con turnos de tierras, mulligans y robos naturales, separado OTP/OTD. Ese control estructural no simula hechizos ni scry. La nueva pestaña agrega un goldfish con cinco prioridades de color para decidir el ratio, manteniendo 19 tierras; el hate y la composición final siguen pendientes. La referencia sigue pendiente de contraste con la exportación original de Goldfish.
+Prioridad actual: **parte 1, 19/20 tierras; parte 2, ratio de 8–12 bridges; parte 3, colores y spells.** Ya hay un control con turnos de tierras, mulligans y robos naturales, separado OTP/OTD. Ese control estructural no simula hechizos ni scry. La nueva pestaña agrega un goldfish con cinco prioridades de color para decidir el ratio, manteniendo 19 tierras; el hate y la composición final siguen pendientes. La referencia sigue pendiente de contraste con la exportación original de Goldfish.
 
-Resultados actuales: [informe de partes 1 y 2](results/structural_stages/informe.md), [CSV](results/structural_stages/metrics.csv) y [JSON con trazas](results/structural_stages/results.json). Se calcularon probabilidades por estados y se validaron con 104.000 trayectorias (2.000 por celda). Los no terrenos son marcadores inertes: se cuantifica consistencia y coste de entrar girado, no el equilibrio final de Affinity.
+Resultados actuales: [informe de partes 1 y 2](results/structural_stages/informe.md), [CSV](results/structural_stages/metrics.csv) y [JSON con trazas](results/structural_stages/results.json). Se calcularon probabilidades por estados y se validaron con 88.000 trayectorias (2.000 por celda). Los no terrenos son marcadores inertes: se cuantifica consistencia y coste de entrar girado, no el equilibrio final de Affinity.
 
-El catálogo de la posterior composición comprende distribuciones W/U/B/R con 19/20 tierras, 9–14 bridges y ninguna básica. Su búsqueda detallada queda pausada hasta revisar cantidad y ratio. Las 12 listas del primer piloto no son el universo de construcción; los conteos previos quedan como preparación para esa etapa.
+El catálogo de la posterior composición comprende distribuciones W/U/B/R con 19/20 tierras, 8–12 bridges y ninguna básica. Su búsqueda detallada queda pausada hasta revisar cantidad y ratio. Las 12 listas del primer piloto no son el universo de construcción; los conteos previos quedan como preparación para esa etapa.
 
 Regla obligatoria: toda mano conservada debe tener al menos dos tierras, incluida la primera de siete y cualquier mano posterior después de poner cartas al fondo.
 
@@ -56,7 +56,7 @@ El piso de cuatro cartas y las políticas adicionales de mulligan son propuestas
 - [Universo y cobertura del análisis exacto](results/search_space/universo_busqueda.md).
 - [Perfiles de aperturas exactos](results/search_space/exact_opening_profiles.csv).
 
-El dominio activo tiene 5.417.403 bases: 4.214.727 con 9–12 bridges y 1.202.676 con 13–14. Se permiten 0–4 copias de cada tierra del catálogo W/U/B/R, incluyendo Citadel; básicas y su análisis de Wildfire quedan excluidos. La extensión verde anterior está inactiva, sin asumir que haya sido demostrada inferior. Los 300 perfiles actuales cubren todas las bases activas para controles de aperturas; todavía no evalúan colores, secuencias ni hate. No confundir conteo/evaluación analítica con partidas Monte Carlo ejecutadas.
+El dominio activo tiene 4.866.162 bases con 8–12 bridges (2.357.556 de 19 tierras y 2.508.606 de 20). Se permiten 0–4 copias de cada tierra del catálogo W/U/B/R, incluyendo Citadel; básicas y su análisis de Wildfire quedan excluidos. La extensión verde anterior está inactiva, sin asumir que haya sido demostrada inferior. Los 250 perfiles actuales cubren todas las bases activas para controles de aperturas; todavía no evalúan colores, secuencias ni hate. No confundir conteo/evaluación analítica con partidas Monte Carlo ejecutadas.
 
 La revisión de la referencia está en [ANALISIS_VIDEO_HYPERGEOMANCER.md](ANALISIS_VIDEO_HYPERGEOMANCER.md). Ahora incorpora la [transcripción parcial aportada por el jugador](message.txt), además de las fuentes del autor. Incluye métodos reutilizables, controles críticos y una propuesta para seleccionar candidatas dentro de 120 perfiles estructurales antes de invertir en Monte Carlo de turnos. No se ejecutó todavía esa selección ni el motor de turnos.
 
@@ -66,7 +66,7 @@ Siguiente etapa: catálogo completo verificado y motor T1–T6 para pagos, filtr
 
 ## Colores tempranos y bridges
 
-La pestaña **Colores y bridges** abre por defecto. Compara cinco prioridades de fuentes con 9–14 bridges, 19 tierras, cuatro Boulder y los mismos 41 hechizos. El piloto tiene 120.000 partidas; la confirmación independiente, 600.000. Incluye pagos, scry, afinidad, robo y rebotes, con una política común y sin rival. Son 30 bases representativas, no todas las composiciones.
+La pestaña **Perfiles predefinidos** abre por defecto. Compara cinco prioridades de fuentes con 8–12 bridges, 19 tierras, cuatro Boulder y los mismos 41 hechizos. El piloto tiene 100.000 partidas; la confirmación independiente, 500.000. Incluye pagos, scry, afinidad, robo y rebotes, con una política común y sin rival. Son 25 bases representativas, no todas las composiciones.
 
 [Informe y alcance](results/color_bridges/informe.md), [resultados](results/color_bridges/results.json), [CSV](results/color_bridges/metrics.csv).
 
@@ -79,7 +79,7 @@ python3 scripts/validate_report.py
 
 ## Pesos independientes de color
 
-En **Colores y bridges → Qué colores pueden esperar**, cada color W/U/B/R tiene un control de 0 a 1. Se pueden reducir varios a la vez. El explorador busca exactamente entre las bases de 19 tierras con el ratio elegido (9–14 bridges), máximo cuatro copias por tierra, sin básicas ni Citadel. Con 10 bridges son 120.480 bases. Cuatro Boulder y los hechizos permanecen fijos. La configuración se comparte por URL y se descarga como JSON.
+En **Composición a medida → Qué colores pueden esperar**, cada color W/U/B/R tiene un control de 0 a 1. Se pueden reducir varios a la vez. El explorador busca exactamente entre las bases de 19 tierras con el ratio elegido (8–12 bridges), máximo cuatro copias por tierra, sin básicas ni Citadel. Con 10 bridges son 120.480 bases. Cuatro Boulder y los hechizos permanecen fijos. La configuración se comparte por URL y se descarga como JSON.
 
 El objetivo es la suma ponderada de probabilidades de encontrar una fuente natural entre nueve cartas sin mulligan. Los empates usan cobertura de fuentes enderezadas entre siete según los mismos pesos; no se favorece un color fijo. Pesos relativos iguales producen la misma elección. Cero deja de exigir ese color en el objetivo, sin retirar sus hechizos. Todos en cero requiere corregir los pesos.
 
@@ -88,3 +88,5 @@ Esta búsqueda genera una base orientativa, con fuentes, cambios frente a pesos 
 ```sh
 node --test tests/composition.test.cjs
 ```
+
+El rango activo 8–12 se aplica a ambas pestañas y a los controles estructurales. **Composición a medida** está separada de **Perfiles predefinidos**. Se verificó que las 40 celdas de colores y 36 estructurales superpuestas con el rango anterior conservaran exactamente sus resultados; [registro de comparación](results/color_bridges/range_update_check.json).

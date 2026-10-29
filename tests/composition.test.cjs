@@ -25,7 +25,7 @@ test('several weights can decrease and common scaling preserves the choice',()=>
   assert.deepEqual(a.weights,[1,.5,.25,.5]);
 });
 test('every ratio respects land totals, four-copy limit and reported sources',()=>{
-  for(let n=9;n<=14;n++) {
+  for(let n=8;n<=12;n++) {
     const c=choose([.5,1,.25,.75],n);
     assert.equal(Object.values(c.lands).reduce((s,x)=>s+x,0),19);
     assert(Object.values(c.lands).every(x=>x>=1 && x<=4));
@@ -45,5 +45,6 @@ test('probabilities are raw hypergeometric source hits, not turn availability',(
 });
 test('invalid settings and all-zero weights are rejected',()=>{
   for(const w of [[0,0,0,0],[1,NaN,1,1],[-1,1,1,1],[1,1,1]]) assert.throws(()=>choose(w));
-  assert.throws(()=>choose([1,1,1,1],8));
+  assert.throws(()=>choose([1,1,1,1],7));
+  assert.throws(()=>choose([1,1,1,1],13));
 });

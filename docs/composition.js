@@ -2,6 +2,7 @@
 globalThis.AffinityComposition = (() => {
   'use strict';
   const colors = ['W', 'U', 'B', 'R'];
+  const counts = globalThis.AFFINITY_DATA?.structural?.config?.part_2?.bridge_counts || [8,9,10,11,12];
   const bridges = [
     ['Razortide Bridge', [1,1,0,0]], ['Mistvault Bridge', [0,1,1,0]],
     ['Drossforge Bridge', [0,0,1,1]], ['Rustvale Bridge', [1,0,0,1]],
@@ -34,7 +35,7 @@ globalThis.AffinityComposition = (() => {
     return cache.get(count);
   }
   function choose(weights, count=10) {
-    if (!Number.isInteger(count) || count < 9 || count > 14) throw Error('Bridges debe estar entre 9 y 14.');
+    if (!Number.isInteger(count) || !counts.includes(count)) throw Error(`Bridges debe estar entre ${Math.min(...counts)} y ${Math.max(...counts)}.`);
     if (!Array.isArray(weights) || weights.length!==4 || weights.some(w=>!Number.isFinite(w)||w<0) || !weights.some(w=>w>0)) throw Error('Asigná al menos un peso mayor que cero.');
     const scale = Math.max(...weights), w = weights.map(x=>x/scale);
     const {bv,uv} = universe(count);
@@ -60,6 +61,6 @@ globalThis.AffinityComposition = (() => {
       scope:'Fuentes naturales; sin mulligans, Boulder, entrada girada ni simulación de partidas.',
       tie_break:'Mayor cobertura ponderada de fuentes enderezadas en siete; luego orden estable de cartas.'};
   }
-  return {choose,hit,colors,bridges,monos};
+  return {choose,hit,colors,bridges,monos,counts};
 })();
 if (typeof module !== 'undefined') module.exports=globalThis.AffinityComposition;

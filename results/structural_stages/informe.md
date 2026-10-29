@@ -40,6 +40,10 @@ Capacidad es el maná disponible tras jugar tierra y antes de spells. Una tierra
 
 | Tierras | Bridges | Enderezadas | Modo | Política | ≥1 maná T1 | ≥2 manás T2 | ≥3 manás T3 | Capacidad acumulada media T1–T3 |
 | ---: | ---: | ---: | --- | --- | ---: | ---: | ---: | ---: |
+| 19 | 8 | 11 | OTP | untapped_first | 89.59% | 61.38% | 35.50% | 4.846 |
+| 19 | 8 | 11 | OTP | bridge_t1_then_untapped | 24.17% | 91.62% | 56.68% | 4.706 |
+| 19 | 8 | 11 | OTD | untapped_first | 91.62% | 67.20% | 41.09% | 4.981 |
+| 19 | 8 | 11 | OTD | bridge_t1_then_untapped | 20.56% | 93.27% | 65.21% | 4.772 |
 | 19 | 9 | 10 | OTP | untapped_first | 86.20% | 54.90% | 30.31% | 4.696 |
 | 19 | 9 | 10 | OTP | bridge_t1_then_untapped | 19.00% | 88.69% | 51.72% | 4.576 |
 | 19 | 9 | 10 | OTD | untapped_first | 88.69% | 60.75% | 35.08% | 4.827 |
@@ -56,14 +60,10 @@ Capacidad es el maná disponible tras jugar tierra y antes de spells. Una tierra
 | 19 | 12 | 7 | OTP | bridge_t1_then_untapped | 7.80% | 75.30% | 34.24% | 4.155 |
 | 19 | 12 | 7 | OTD | untapped_first | 75.30% | 39.10% | 18.90% | 4.315 |
 | 19 | 12 | 7 | OTD | bridge_t1_then_untapped | 6.05% | 78.55% | 40.45% | 4.232 |
-| 19 | 13 | 6 | OTP | untapped_first | 65.05% | 27.54% | 13.05% | 4.038 |
-| 19 | 13 | 6 | OTP | bridge_t1_then_untapped | 5.32% | 68.93% | 27.89% | 4.003 |
-| 19 | 13 | 6 | OTD | untapped_first | 68.93% | 31.52% | 14.49% | 4.131 |
-| 19 | 13 | 6 | OTD | bridge_t1_then_untapped | 4.03% | 72.45% | 33.07% | 4.077 |
-| 19 | 14 | 5 | OTP | untapped_first | 57.43% | 20.95% | 9.89% | 3.864 |
-| 19 | 14 | 5 | OTP | bridge_t1_then_untapped | 3.38% | 61.39% | 21.53% | 3.845 |
-| 19 | 14 | 5 | OTD | untapped_first | 61.39% | 24.06% | 10.72% | 3.943 |
-| 19 | 14 | 5 | OTD | bridge_t1_then_untapped | 2.50% | 65.04% | 25.55% | 3.913 |
+| 20 | 8 | 12 | OTP | untapped_first | 91.31% | 65.72% | 40.21% | 4.961 |
+| 20 | 8 | 12 | OTP | bridge_t1_then_untapped | 25.78% | 93.19% | 61.46% | 4.793 |
+| 20 | 8 | 12 | OTD | untapped_first | 93.19% | 71.53% | 46.35% | 5.100 |
+| 20 | 8 | 12 | OTD | bridge_t1_then_untapped | 21.93% | 94.68% | 69.93% | 4.854 |
 | 20 | 9 | 11 | OTP | untapped_first | 88.42% | 59.73% | 34.94% | 4.820 |
 | 20 | 9 | 11 | OTP | bridge_t1_then_untapped | 20.62% | 90.75% | 56.88% | 4.671 |
 | 20 | 9 | 11 | OTD | untapped_first | 90.75% | 65.69% | 40.37% | 4.957 |
@@ -80,21 +80,13 @@ Capacidad es el maná disponible tras jugar tierra y antes de spells. Una tierra
 | 20 | 12 | 8 | OTP | bridge_t1_then_untapped | 9.20% | 79.53% | 40.36% | 4.280 |
 | 20 | 12 | 8 | OTD | untapped_first | 79.53% | 45.52% | 23.55% | 4.475 |
 | 20 | 12 | 8 | OTD | bridge_t1_then_untapped | 7.14% | 82.62% | 47.21% | 4.359 |
-| 20 | 13 | 7 | OTP | untapped_first | 70.30% | 33.51% | 16.58% | 4.193 |
-| 20 | 13 | 7 | OTP | bridge_t1_then_untapped | 6.59% | 74.17% | 34.15% | 4.138 |
-| 20 | 13 | 7 | OTD | untapped_first | 74.17% | 38.20% | 18.70% | 4.300 |
-| 20 | 13 | 7 | OTD | bridge_t1_then_untapped | 4.98% | 77.60% | 40.17% | 4.216 |
-| 20 | 14 | 6 | OTP | untapped_first | 63.75% | 26.88% | 12.98% | 4.025 |
-| 20 | 14 | 6 | OTP | bridge_t1_then_untapped | 4.48% | 67.81% | 27.78% | 3.990 |
-| 20 | 14 | 6 | OTD | untapped_first | 67.81% | 30.81% | 14.38% | 4.119 |
-| 20 | 14 | 6 | OTD | bridge_t1_then_untapped | 3.31% | 71.48% | 32.80% | 4.065 |
 
 ## Lectura correcta
 
-- Esta etapa cuantifica el coste de velocidad de 9–14 bridges. Al omitir fixing y resiliencia, entrar girado pierde sus compensaciones; no se puede descubrir un equilibrio interior completo con esta capa sola.
+- Esta etapa cuantifica el coste de velocidad de 8–12 bridges. Al omitir fixing y resiliencia, entrar girado pierde sus compensaciones; no se puede descubrir un equilibrio interior completo con esta capa sola.
 - Las políticas pueden repartir capacidad de manera distinta entre T1 y T2. Más capacidad en un turno no prueba que se lanzaran más hechizos.
 - Una elección de 19/20 y ratio queda provisional hasta añadir colores, Boulder y robos. No trasladar automáticamente el resultado Grixis del video.
 - All four colours by T3 y Needed colours met quedan para la etapa de composición y spells. No hay resultados simulados de esos indicadores aquí.
 - Los CSV y JSON separan OTP/OTD, mantienen denominadores y guardan trazas. Los fallos del mulligan no se excluyen silenciosamente.
 
-Controles de depuración Monte Carlo: 2184/2184 dentro de seis errores estándar + 1/N. No es una banda del 95% ni una selección de ganadores.
+Controles de depuración Monte Carlo: 1848/1848 dentro de seis errores estándar + 1/N. No es una banda del 95% ni una selección de ganadores.

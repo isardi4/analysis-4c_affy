@@ -128,19 +128,19 @@ def write_search(output):
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
-    lines = ["# Universo activo: 9–14 bridges, sin básicas", "",
-             "19/20 tierras, 9–14 bridges totales, ninguna básica y 0–4 copias de cada tierra del catálogo W/U/B/R, incluyendo Citadel. El resto son tierras artefacto enderezadas. Boulder se cruza en cantidades 0–4, con reemplazos explícitos para mantener 60 cartas.", "",
-             "Rango principal propuesto: 9–12 bridges. Rango exploratorio: 13–14, para medir su efecto en colores, velocidad y solidez. Esta división organiza el estudio; no anticipa el resultado.", "",
+    lines = [f"# Universo activo: {low}–{high} bridges, sin básicas", "",
+             f"19/20 tierras, {low}–{high} bridges totales, ninguna básica y 0–4 copias de cada tierra del catálogo W/U/B/R, incluyendo Citadel. El resto son tierras artefacto enderezadas. Boulder se cruza en cantidades 0–4, con reemplazos explícitos para mantener 60 cartas.", "",
+             "Todas las cantidades del rango activo se incluyen sin anticipar cuál será mejor.", "",
              "| Tierras | Bridges | Enderezadas | Bases distintas |",
              "| ---: | ---: | ---: | ---: |"]
     for r in per_bridge:
         lines.append(f"| {r['lands']} | {r['bridges']} | {r['untapped']} | {r['distinct_bases']:,} |")
     lines += ["", "## Totales por rango", "",
-              "| Tierras | 9–12 bridges | 13–14 bridges | Total |",
-              "| ---: | ---: | ---: | ---: |"]
+              "| Tierras | " + " | ".join(f"{a}–{b} ({band})" for band, (a,b) in config['bridge_bands'].items()) + " | Total |",
+              "| ---: | " + " | ".join('---:' for _ in config['bridge_bands']) + " | ---: |"]
     for name, block in counts.items():
         for lands, d in block.items():
-            lines.append(f"| {lands} | {d['bands']['principal']:,} | {d['bands']['exploratorio']:,} | {d['all_bases']:,} |")
+            lines.append(f"| {lands} | " + " | ".join(f"{d['bands'][band]:,}" for band in config['bridge_bands']) + f" | {d['all_bases']:,} |")
         lines += ["", f"Total activo **{name}: {totals[name]:,} bases**. El conteo anterior de 32.205.701 incluía básicas y cantidades de bridges excluidas ahora; ya no es el alcance activo.", ""]
     lines += ["## Qué se evaluó", "",
               "Conteo exhaustivo y controles exactos de aperturas por perfiles con multiplicidad: menos de dos tierras en siete, Boulder en siete y al menos dos tierras + Boulder + tierra enderezada en siete. Para estas métricas la partición representa exactamente todas las bases del dominio.", "",
@@ -148,9 +148,9 @@ def write_search(output):
               "El generador aplica el límite de bridges durante la generación; no materializa primero bases excluidas. Se contrastó contra fuerza bruta en dominios pequeños.", "",
               "## Alcance y continuación", "",
               "- Seis bridges W/U/B/R, Ancient Den, Seat of the Synod, Vault of Whispers, Great Furnace y Darksteel Citadel. La extensión verde previa queda inactiva, no demostrada inferior.",
-              "- Todas las distribuciones dentro de 9–14, sin fijar cantidades de Vault/Synod/Furnace/Citadel.",
+              f"- Todas las distribuciones dentro de {low}–{high}, sin fijar cantidades de Vault/Synod/Furnace/Citadel.",
               "- Básicas y su análisis de Cleansing Wildfire excluidos por indicación del jugador.",
-              "- El motor debe separar cantidad de bridges, identidad/colores y política de juego; estudiar 13–14 sin descartarlos por su entrada girada.",
+              "- El motor debe separar cantidad de bridges, identidad/colores y política de juego dentro del rango activo.",
               "- Publicar cobertura y distinguir conteo/evaluación exacta de partidas simuladas; confirmar candidatos con nuevas semillas.", ""]
     (output/"universo_busqueda.md").write_text("\n".join(lines))
     print("Bases activas:", totals)

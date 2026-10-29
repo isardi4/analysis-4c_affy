@@ -8,6 +8,11 @@ OUT = ROOT/'results/color_bridges'
 
 def main():
     d = json.loads((OUT/'results.json').read_text())
+    pilot = json.loads((ROOT/'results/color_bridges_pilot/results.json').read_text())
+    counts = d['config']['bridges']
+    low, high = min(counts), max(counts)
+    bases = len(d['candidates'])
+    integer = lambda n: f'{n:,}'.replace(',', '.')
     def cell(p, b, m):
         return next(c for c in d['cells'] if (c['profile'], c['bridges'], c['mode']) == (p, b, m))
     def rate(p, b, m, key):
@@ -15,15 +20,15 @@ def main():
     def average(p, b, key):
         return sum(rate(p, b, m, key) for m in ('OTP', 'OTD'))/2
     def winner(p, key):
-        return max(range(9, 15), key=lambda b: (average(p, b, key), -b))
+        return max(counts, key=lambda b: (average(p, b, key), -b))
     def pc(p):
         return f'{100*p:.2f}%'
     recommended = winner('balanced', 'needed_t2_t3')
-    neighbor = recommended + 1 if recommended < 14 else recommended - 1
+    neighbor = recommended + 1 if recommended < high else recommended - 1
     decision = {
         'bridges': recommended, 'untapped': 19-recommended, 'control_bridges': neighbor,
         'objective': 'Desarrollo T2 y T3: al menos un hechizo de motor/criatura cada turno; perfil equilibrado; media OTP/OTD.',
-        'scope': 'Recomendación de trabajo entre las 30 bases probadas; no óptimo global ni tasa de victoria.',
+        'scope': f'Recomendación de trabajo entre las {bases} bases probadas ({low}–{high} bridges); no óptimo global ni tasa de victoria.',
         'title': f'Punto de partida: {recommended} bridges + {19-recommended} enderezadas.',
         'text': f'Es el mejor valor puntual del desarrollo T2–T3 en el perfil equilibrado, con igual peso para OTP y OTD. Mantener {neighbor} bridges como control cercano permite revisar el ratio al optimizar las cartas concretas. El fixing de cuatro colores se informa aparte: no se fuerza a gastar cuatro colores si la mano no los necesita.',
         'next_step': f'Optimizar qué bridges y tierras enderezadas forman la base de {recommended}/{19-recommended}; conservar {neighbor} bridges como sensibilidad. Después evaluar Citadel y hate de artefactos. La cantidad elegida puede revisarse si una composición mejor o una política de juego distinta cambia el resultado.',
@@ -34,9 +39,9 @@ def main():
     (OUT/'results.json').write_text(json.dumps(d, ensure_ascii=False, indent=2)+'\n')
     lines = ['# Colores tempranos y cantidad de bridges', '', 'Fecha: 2026-10-29.', '',
              f'## {decision["title"]}', '', decision['text'], '', decision['scope'], '',
-             f'Piloto: 120.000 partidas (2.000 × 30 bases × OTP/OTD). Confirmación con semilla independiente: {d["total_trials"]:,} partidas ({d["n_per_cell"]:,} por celda). No se suman ambas muestras. Horizonte T1–T5.', '',
+             f'Piloto: {integer(pilot["total_trials"])} partidas ({integer(pilot["n_per_cell"])} × {bases} bases × OTP/OTD). Confirmación con semilla independiente: {integer(d["total_trials"])} partidas ({integer(d["n_per_cell"])} por celda). No se suman ambas muestras. Horizonte T1–T5.', '',
              '## Qué significa cada prioridad', '',
-             'Para cada ratio 9–14 se busca una base representativa entre las seis parejas WUBR de bridges y las cuatro tierras artefacto monocolores. Siempre 19 tierras, cuatro Boulder, las mismas 41 cartas no tierra y máximo cuatro copias por nombre. Sin básicas ni Citadel en este experimento sin rival.', '',
+             f'Para cada ratio {low}–{high} se busca una base representativa entre las seis parejas WUBR de bridges y las cuatro tierras artefacto monocolores. Siempre 19 tierras, cuatro Boulder, las mismas 41 cartas no tierra y máximo cuatro copias por nombre. Sin básicas ni Citadel en este experimento sin rival.', '',
              'La función de selección es Σ w(c) × [1 − C(60−fuentes(c),9)/C(60,9)]. Equilibrado: pesos 1/1/1/1. Cada perfil temprano da peso 3 al color elegido y 1 a los demás. Es una búsqueda exacta de un sustituto simple para generar hipótesis, no la probabilidad de jugar una curva ni una optimización completa de cada composición. Los desempates priorizan la menor fuente de color, luego enderezadas azules, negras y un orden estable de cartas. Equilibrado balancea fuentes totales, no tiempos de acceso idénticos; sus enderezadas favorecen el motor U/B. Estos desempates y cada composición están expuestos para revisar ese supuesto en la siguiente etapa.', '',
              'El mismo piloto juega todos los perfiles: no cambia sus prioridades para favorecer a un color. La recomendación usa desarrollo T2–T3 en equilibrado, promediando las dos posiciones por igual, sin asignar un área a un radar ni sumar indicadores correlacionados.', '',
              '## Resultados por perfil', '',
@@ -50,12 +55,12 @@ def main():
               '| Modo | Bridges | Desarrollo T2–T3 | Amenaza hasta T3 | Cryogen hasta T2 | 4 colores hasta T3 | Operativo Boulder hasta T3 |',
               '| --- | ---: | ---: | ---: | ---: | ---: | ---: |']
     for mode in ('OTP', 'OTD'):
-        for b in range(9, 15):
+        for b in counts:
             values = [pc(rate('balanced', b, mode, key)) for key in ('needed_t2_t3', 'threat_t3', 'relic_t2', 'all4_t3', 'boulder_t3')]
             lines.append(f'| {mode} | {b} | ' + ' | '.join(values) + ' |')
-    lines += ['', '### Qué se gana y qué se pierde al subir de 9 a 14', '']
+    lines += ['', f'### Qué se gana y qué se pierde al subir de {low} a {high}', '']
     for mode in ('OTP', 'OTD'):
-        delta = lambda key: 100*(rate('balanced', 14, mode, key)-rate('balanced', 9, mode, key))
+        delta = lambda key: 100*(rate('balanced', high, mode, key)-rate('balanced', low, mode, key))
         lines.append(f'- {mode}: 4 colores T3 cambia {delta("all4_t3"):+.2f} pp; desarrollo T2–T3, {delta("needed_t2_t3"):+.2f} pp; amenaza T3, {delta("threat_t3"):+.2f} pp; Cryogen T2, {delta("relic_t2"):+.2f} pp.')
     lines += ['', 'Para desarrollo sin rival, los puntos anteriores favorecen el extremo bajo del rango. La pequeña ganancia de cobertura de cuatro colores no recupera automáticamente las jugadas perdidas. Más bridges también implica más tierras indestructibles; falta simular el hate para ponerle un valor a esa ventaja. Al variar el ratio se vuelve a elegir la base representativa: estos cambios combinan entrada girada y la composición seleccionada, no aíslan causalmente el efecto de una carta concreta.', '']
     lines += ['', '## Diferencias pareadas frente al ratio de trabajo', '',
@@ -63,7 +68,7 @@ def main():
               '| Modo | Comparación | Métrica | Diferencia | IC 95% (pp) |',
               '| --- | --- | --- | ---: | ---: |']
     for mode in ('OTP', 'OTD'):
-        for other in range(9, 15):
+        for other in counts:
             if other == recommended:
                 continue
             for metric in ('needed_t2_t3', 'threat_t3', 'all4_t3'):

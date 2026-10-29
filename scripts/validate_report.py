@@ -33,7 +33,7 @@ def main():
     page = Page()
     page.feed((SITE/'index.html').read_text())
     assert len(page.ids) == len(set(page.ids)), 'Duplicate HTML ids'
-    assert page.tabs == page.panels and len(page.tabs) == 5, 'Broken tab navigation'
+    assert page.tabs == page.panels and len(page.tabs) == 6, 'Broken tab navigation'
     for path in page.local_files:
         assert (SITE/path).is_file(), f'Missing local asset: {path}'
     prefix = 'window.AFFINITY_DATA = '
@@ -42,14 +42,21 @@ def main():
     data = json.loads(raw[len(prefix):].rstrip().removesuffix(';'))
     structural = json.loads((ROOT/'results/structural_stages/results.json').read_text())
     assert data['structural']['opening_distribution'] == structural['opening_distribution']
-    assert data['structural']['control_trajectories'] == 104000
-    assert data['structural']['checks_passed'] == data['structural']['checks_total'] == 2184
-    assert len(data['structural']['cells']) == 52
+    counts = structural['config']['part_2']['bridge_counts']
+    assert counts == [8,9,10,11,12]
+    expected_structural = len(structural['config']['land_totals'])*len(structural['config']['modes'])*(1+len(counts)*len(structural['config']['part_2']['policies']))
+    assert data['structural']['control_trajectories'] == expected_structural*structural['config']['trials_per_cell']
+    assert data['structural']['checks_passed'] == data['structural']['checks_total'] == structural['checks_total'] > 0
+    assert len(data['structural']['cells']) == expected_structural
     for source, packaged in zip(structural['cells'], data['structural']['cells']):
         assert source['exact'] == packaged['exact'], 'Dashboard changed analytical results'
     color = json.loads((ROOT/'results/color_bridges/results.json').read_text())
-    assert len(color['cells']) == 60
-    assert color['total_trials'] == 60*color['n_per_cell']
+    assert color['config']['bridges'] == counts
+    expected_color = len(counts)*len(color['profiles'])*2
+    assert len(color['cells']) == expected_color
+    assert {(c['bridges'],c['profile'],c['mode']) for c in color['cells']} == {(b,p,m) for b in counts for p in color['profiles'] for m in ('OTP','OTD')}
+    assert color['total_trials'] == expected_color*color['n_per_cell']
+    assert data['search']['scope_totals'] == json.loads((ROOT/'results/search_space/manifest.json').read_text())['scope_totals']
     assert data['color_study']['candidates'] == color['candidates']
     assert data['color_study']['decision'] == color['decision']
     for source, packaged in zip(color['cells'], data['color_study']['cells']):
@@ -62,7 +69,7 @@ def main():
         actual = hashlib.sha256((SITE/'downloads'/name).read_bytes()).hexdigest()
         assert expected == actual == item['sha256'], f'Download differs: {name}'
     assert all(d['text'] == (ROOT/d['path']).read_text() for d in data['documents'])
-    print(f'Publicación validada: cinco pestañas, 52 celdas estructurales, 60 celdas de colores y {len(manifest["files"])} descargas verificadas.')
+    print(f'Publicación validada: seis pestañas, {expected_structural} celdas estructurales, {expected_color} celdas de colores y {len(manifest["files"])} descargas verificadas.')
 
 
 if __name__ == '__main__':

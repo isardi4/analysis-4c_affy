@@ -1,15 +1,36 @@
 {
   "stage": "03_structural_land_count_then_tapped_ratio",
   "deck_size": 60,
-  "land_totals": [19, 20],
-  "modes": ["OTP", "OTD"],
+  "land_totals": [
+    19,
+    20
+  ],
+  "modes": [
+    "OTP",
+    "OTD"
+  ],
   "horizon": 6,
   "minimum_kept_lands": 2,
   "mulligan_floor": 4,
   "keep_policy": "Keep any seven-card sample with at least two lands, starting with the original seven. Same policy in OTP/OTD. The floor of four remains a methodological proposal.",
   "bottom_policy": "After m mulligans keep 7-m cards. Aim for 3 lands at hand sizes 5–6, or 2 at size 4, constrained by the cards available. Among retained lands prefer untapped lands; bottom the rest. No bottoming before a mulligan-free keep.",
-  "part_1": {"bridges": 0, "description": "Ideal untapped-land control to isolate 19 vs 20. Not a proposed Affinity composition."},
-  "part_2": {"bridge_counts": [9, 10, 11, 12, 13, 14], "policies": ["untapped_first", "bridge_t1_then_untapped"]},
+  "part_1": {
+    "bridges": 0,
+    "description": "Ideal untapped-land control to isolate 19 vs 20. Not a proposed Affinity composition."
+  },
+  "part_2": {
+    "bridge_counts": [
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "policies": [
+      "untapped_first",
+      "bridge_t1_then_untapped"
+    ]
+  },
   "trials_per_cell": 2000,
   "seed": 20261029,
   "scope": [

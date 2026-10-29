@@ -3,11 +3,11 @@
   "files": {
     "structural-results.json": {
       "source": "results/structural_stages/results.json",
-      "sha256": "5ecaad7d57bc721b214385712a559b68722d7edf4b486d50cd1a78bfa083e7b2"
+      "sha256": "b33bf15212964dfc0988762c290ba259a39ac4484aa0386ef0a8ab8b41e0357f"
     },
     "structural-metrics.csv": {
       "source": "results/structural_stages/metrics.csv",
-      "sha256": "78d952efafecc192b1364c73964b03dd004cd8d1c838f00a7b0fccbaa63fe882"
+      "sha256": "6b847a829cc99ecd1766eb5ca99740091fabca63e1f53b2250c8f8da1dbc61f0"
     },
     "opening-pilot.json": {
       "source": "results/pilot_01/results.json",
@@ -19,15 +19,15 @@
     },
     "search-manifest.json": {
       "source": "results/search_space/manifest.json",
-      "sha256": "e0df08f5aa11fb913f6e46847797f8f9437c88c214238642ee30d4652d953a17"
+      "sha256": "cfde3262201ed34ab6913b9fba78f71a4adf83cd98cdbfdb66b14f7e95db08b5"
     },
     "search-profiles.csv": {
       "source": "results/search_space/exact_opening_profiles.csv",
-      "sha256": "da7832c3efa65cb5827446552dc552367286e1bfe456c83257e51cccf74305f1"
+      "sha256": "b01a9b0ba72d959ace3a697d69a9608b441bb22bc2a4b58d76b5fd8dfbcccb4d"
     },
     "plan.md": {
       "source": "PLAN_ANALISIS.md",
-      "sha256": "5b42a728cd1e0b2972d152d51d06b25c56f13e5bf5fc7f23cd8ee13d9ca2b246"
+      "sha256": "e3e5b9b96a2152486fba42cf8c504411b037f8d0ef70303f6c92d44390f2c6cd"
     },
     "video-analysis.md": {
       "source": "ANALISIS_VIDEO_HYPERGEOMANCER.md",
@@ -35,7 +35,7 @@
     },
     "structural-report.md": {
       "source": "results/structural_stages/informe.md",
-      "sha256": "f6cff417344c88d821956dcb9dd0bf8dbd9f0833c5696dce4257a2b3585259b6"
+      "sha256": "e3e72f9c246fba5757379144610b64a4687fd230628720e819a15aa6eff34d3d"
     },
     "message.txt": {
       "source": "message.txt",
@@ -43,15 +43,15 @@
     },
     "color-results.json": {
       "source": "results/color_bridges/results.json",
-      "sha256": "42fb95d4b4879220f6001fbef9e8adba969624d68279e3c8ee6cca732fbc041b"
+      "sha256": "369985690a452665dea0b4ec2f71ed25c70276fb5cc1f055be6b358d09c2c7a3"
     },
     "color-metrics.csv": {
       "source": "results/color_bridges/metrics.csv",
-      "sha256": "d7418df4463fe8984dc3bee37c904e4447661a9a2432800cf0d2c28e1a2392ee"
+      "sha256": "1bce0353b09ed8b115578827a2f842458732f4f521335cdb0a56aca548a8a132"
     },
     "color-report.md": {
       "source": "results/color_bridges/informe.md",
-      "sha256": "515be4030e34351d0a8498af65650b7e9ec3093193220326c964fc7922f12001"
+      "sha256": "bebef29a39ced9b751d2185ae57bcc4bc45c339ab0268bea6f64bc9b5acdeed7"
     }
   }
 }
