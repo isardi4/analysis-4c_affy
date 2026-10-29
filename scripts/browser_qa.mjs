@@ -47,8 +47,16 @@ try {
   assert.equal(await evaluate('document.querySelectorAll("#part-one-table tbody tr").length'), 4);
   assert.equal(await evaluate('document.querySelectorAll("#part-two-table tbody tr").length'), 6);
   assert((await evaluate('document.getElementById("land-kpis").innerText')).includes('78,05'));
+  assert.equal(await evaluate('document.querySelectorAll("#opening-chart .chart-value-label").length'), 16);
+  assert.equal(await evaluate('document.querySelectorAll("#curve-chart .chart-value-label").length'), 12);
+  assert.equal(await evaluate('document.querySelectorAll("#ratio-chart .chart-value-label").length'), 18);
+  assert(await evaluate('Array.from(document.querySelectorAll(".chart-value-label")).every(x=>/^\\d+,\\d{2} %$/.test(x.textContent))'));
+  assert.equal(await evaluate('document.querySelector("#curve-chart .chart-value-label[data-index=\\"2\\"][data-series=\\"0\\"]").textContent'), '78,05 %');
+  assert((await evaluate('document.querySelector(".table-definition").textContent')).includes('1 + 2 + 3'));
+  assert((await evaluate('document.querySelector("#part-two-table thead").textContent')).includes('Capacidad media · T3'));
   await evaluate('document.querySelector("[data-mode=OTD]").click()');
   assert((await evaluate('document.getElementById("land-kpis").innerText')).includes('85,15'));
+  assert.equal(await evaluate('document.querySelector("#curve-chart .chart-value-label[data-index=\\"2\\"][data-series=\\"0\\"]").textContent'), '85,15 %');
   assert.equal(await evaluate('document.querySelector("[data-mode=OTD]").getAttribute("aria-pressed")'), 'true');
   await evaluate('document.querySelector("[data-lands=\\"20\\"]").click()');
   assert.equal(await evaluate('document.querySelector("#part-two-table tbody tr td:nth-child(2)").textContent'), '11');
@@ -70,7 +78,7 @@ try {
   let shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
   await writeFile(`${artifacts}/desktop.png`, Buffer.from(shot.data, 'base64'));
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
-  await delay(100);
+  await delay(250);
   const mobile = await evaluate('({width:innerWidth, body:document.body.scrollWidth, root:document.documentElement.scrollWidth})');
   assert(mobile.body <= mobile.width + 1 && mobile.root <= mobile.width + 1, `Mobile overflow: ${JSON.stringify(mobile)}`);
   for (const tab of ['overview', 'method', 'documents', 'parts']) {

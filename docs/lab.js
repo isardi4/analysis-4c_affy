@@ -38,7 +38,8 @@
   }
   function chart(host, { title, labels, series, type = 'line', max = 100 }) {
     host.replaceChildren();
-    const width = 720, height = 286, padding = { l: 48, r: 19, t: 15, b: 40 };
+    const width = Math.max(540, Math.round(host.clientWidth) || 720);
+    const height = 338, padding = { l: 48, r: 24, t: 64, b: 46 };
     const plotW = width - padding.l - padding.r, plotH = height - padding.t - padding.b;
     const uid = `chart-title-${++chartId}`;
     const root = svgNode('svg', { viewBox: `0 0 ${width} ${height}`, role: 'img', 'aria-labelledby': uid });
@@ -53,6 +54,7 @@
     const step = plotW / (type === 'bar' ? labels.length : Math.max(1, labels.length - 1));
     const x = i => padding.l + (type === 'bar' ? i + .5 : i) * step;
     labels.forEach((label, i) => root.append(svgNode('text', { x: x(i), y: height - 13, 'text-anchor': 'middle', class: 'axis-label' }, label)));
+    const valueLabels = [];
     series.forEach((s, si) => {
       if (type === 'line') {
         root.append(svgNode('polyline', { points: s.values.map((v, i) => `${x(i)},${y(v)}`).join(' '), fill: 'none', stroke: s.color, 'stroke-width': 2.7, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
@@ -60,6 +62,7 @@
           const description = `${labels[i]} · ${s.name}: ${fmt(v, 2)} %`;
           const point = svgNode('circle', { cx: x(i), cy: y(v), r: 4.4, fill: '#fffefb', stroke: s.color, 'stroke-width': 2.5, tabindex: 0, class: 'chart-point', 'aria-label': description });
           point.append(svgNode('title', {}, description)); root.append(point);
+          valueLabels.push({ x: x(i), y: y(v), value: v, color: s.color, index: i, series: si });
         });
       } else {
         const groupW = step * .69, barW = groupW / series.length;
@@ -67,9 +70,43 @@
           const description = `${labels[i]} · ${s.name}: ${fmt(v, 2)} %`;
           const bar = svgNode('rect', { x: x(i) - groupW / 2 + si * barW, y: y(v), width: Math.max(1, barW - 3), height: Math.max(0, plotH * v / max), rx: 2, fill: s.color, tabindex: 0, 'aria-label': description });
           bar.append(svgNode('title', {}, description)); root.append(bar);
+          valueLabels.push({ x: x(i) - groupW / 2 + si * barW + Math.max(1, barW - 3) / 2, y: y(v), value: v, color: s.color, index: i, series: si });
         });
       }
     });
+    // Keep all values visible, including almost coincident series and tiny bars.
+    // Labels are drawn last and assigned separate vertical slots when needed.
+    const labelLayer = svgNode('g', { 'aria-hidden': 'true' });
+    const placed = [];
+    const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+    valueLabels.sort((a, b) => a.index - b.index || (type === 'line' ? a.y - b.y : a.series - b.series));
+    for (const label of valueLabels) {
+      const text = `${fmt(label.value, 2)} %`;
+      const labelWidth = text.length * 6.5 + 8;
+      const center = Math.max(labelWidth / 2 + 4, Math.min(width - labelWidth / 2 - 4, label.x));
+      const offsets = type === 'bar' ? [-10, -29, -48, -67, -86, -105] : [-13, 22, -32, 41, -51, 60];
+      let position;
+      for (const offset of offsets) {
+        const baseline = label.y + offset;
+        const box = { left: center - labelWidth / 2, right: center + labelWidth / 2, top: baseline - 12, bottom: baseline + 3 };
+        if (box.top < 3 || box.bottom > height - padding.b + 27) continue;
+        if (placed.some(other => intersects(box, other))) continue;
+        if (type === 'line' && valueLabels.some(point => intersects(box, { left: point.x - 6, right: point.x + 6, top: point.y - 6, bottom: point.y + 6 }))) continue;
+        position = { box, baseline }; break;
+      }
+      if (!position) {
+        const baseline = Math.max(18, label.y - 13 - label.series * 19);
+        position = { baseline, box: { left: center - labelWidth / 2, right: center + labelWidth / 2, top: baseline - 12, bottom: baseline + 3 } };
+      }
+      placed.push(position.box);
+      const darkColor = `#${label.color.slice(1).match(/../g).map(hex => Math.round(parseInt(hex, 16) * .73).toString(16).padStart(2, '0')).join('')}`;
+      labelLayer.append(svgNode('text', {
+        x: center, y: position.baseline, 'text-anchor': 'middle', fill: darkColor,
+        class: 'chart-value-label', 'data-value': label.value.toFixed(2),
+        'data-index': label.index, 'data-series': label.series, 'data-kind': type,
+      }, text));
+    }
+    root.append(labelLayer);
     host.append(root);
     const legend = node('div', 'chart-legend');
     series.forEach(s => { const item = node('span'); const swatch = node('i', 'legend-swatch'); swatch.style.background = s.color; item.append(swatch, document.createTextNode(s.name)); legend.append(item); });
@@ -117,6 +154,7 @@
       $(`panel-${button.dataset.tab}`).hidden = !active;
       if (active && focus) button.focus();
     });
+    if (name === 'parts') { renderFixedCharts(); renderPartOne(); renderPartTwo(); }
     updateURL();
   }
   function renderPartOne() {
@@ -144,7 +182,7 @@
       rows.push({ active: mode === state.mode, color: lands === 19 ? colors.nineteen : colors.twenty,
         values: [`${lands} tierras`, mode, ...[3, 4, 5].map(t => pct(probability(c, t, 'lands_on_curve'))), pct(ts[3].screw_le2_conditional_on_kept), pct(c.exact.opening.failed), fmt(c.exact.opening.mean_cards_unconditional, 3)] });
     }
-    makeTable($('part-one-table'), ['Base', 'Modo', 'Curve T3', 'Curve T4', 'Curve T5', 'Screw T4 · keeps', 'Fallo mulligan', 'Cartas medias*'], rows);
+    makeTable($('part-one-table'), ['Base', 'Modo', '≥3 tierras · T3', '≥4 tierras · T4', '≥5 tierras · T5', 'Screw T4 · keeps', 'Fallo mulligan', 'Cartas medias*'], rows);
   }
   function renderFixedCharts() {
     chart($('opening-chart'), { title: 'Distribución de tierras en las siete originales', type: 'bar', max: 40,
@@ -172,7 +210,7 @@
       ? 'Si hay una tierra enderezada en mano, se juega antes que un bridge.'
       : 'Se abre con bridge si hay uno; desde T2 se priorizan enderezadas.';
     $('ratio-table-badge').textContent = `${state.lands} tierras · ${state.mode}`;
-    makeTable($('part-two-table'), ['Bridges', 'Enderezadas', '≥1 maná T1', '≥2 manás T2', '≥3 manás T3', 'Capacidad acumulada T1–T3'], cs.map(c => ({ values: [String(c.bridges), String(c.lands - c.bridges), ...definitions.map(d => pct(probability(c, d.turn, d.key))), fmt(c.exact.turns.slice(0, 3).reduce((s, t) => s + t.mean_capacity_unconditional, 0), 3)] })));
+    makeTable($('part-two-table'), ['Bridges', 'Enderezadas', '≥1 maná T1', '≥2 manás T2', '≥3 manás T3', 'Capacidad media · T3', 'Suma T1 + T2 + T3'], cs.map(c => ({ values: [String(c.bridges), String(c.lands - c.bridges), ...definitions.map(d => pct(probability(c, d.turn, d.key))), `${fmt(c.exact.turns[2].mean_capacity_unconditional, 2)} manás`, fmt(c.exact.turns.slice(0, 3).reduce((s, t) => s + t.mean_capacity_unconditional, 0), 3)] })));
     const heatmap = node('table', 'heatmap'), head = node('thead'), hr = node('tr');
     ['Bridges', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'].forEach(name => { const th = node('th', '', name); th.scope = 'col'; hr.append(th); }); head.append(hr);
     const body = node('tbody');
@@ -306,6 +344,11 @@
   $('policy-select').addEventListener('change', () => { state.policy = $('policy-select').value; syncControls(); });
   document.querySelectorAll('a[href="#overview"]').forEach(link => link.addEventListener('click', event => { event.preventDefault(); activateTab('overview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }));
   addEventListener('hashchange', () => { const tab = location.hash.slice(1); if (['overview', 'parts', 'method', 'documents'].includes(tab)) activateTab(tab); });
+  let resizeTimer;
+  addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { renderFixedCharts(); renderPartOne(); renderPartTwo(); }, 120);
+  });
   renderFixedCharts(); renderMethod(); renderDocument(); syncControls(); activateTab(state.tab);
   document.body.dataset.ready = 'true';
 })();
