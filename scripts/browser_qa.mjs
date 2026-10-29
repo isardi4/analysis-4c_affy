@@ -43,7 +43,18 @@ try {
   let ready = false;
   for (let i = 0; i < 100; i++) { ready = await evaluate('document.body?.dataset.ready === "true"'); if (ready) break; await delay(100); }
   assert(ready, 'Report did not initialize');
-  assert.equal(await evaluate('document.querySelector("[role=tab][aria-selected=true]").dataset.tab'), 'parts');
+  assert.equal(await evaluate('document.querySelector("[role=tab][aria-selected=true]").dataset.tab'), 'profiles');
+  assert.equal(await evaluate('document.querySelectorAll("#color-results-table tbody tr").length'), 6);
+  assert.equal(await evaluate('document.querySelectorAll("#color-profile-table tbody tr").length'), 5);
+  assert((await evaluate('document.getElementById("color-sample-note").textContent')).includes('600.000'));
+  assert.equal(await evaluate('document.querySelectorAll("#color-function-chart .chart-value-label").length'), 18);
+  assert.equal(await evaluate('document.querySelectorAll("#color-early-chart .chart-value-label").length'), 24);
+  const balanced = await evaluate('document.getElementById("color-function-chart").dataset.values');
+  for (const profile of ['blue','white','black','red']) {
+    await evaluate(`document.getElementById('profile-select').value='${profile}'; document.getElementById('profile-select').dispatchEvent(new Event('change'))`);
+    assert.notEqual(await evaluate('document.getElementById("color-function-chart").dataset.values'), balanced);
+  }
+  await evaluate('document.getElementById("profile-select").value="balanced"; document.getElementById("profile-select").dispatchEvent(new Event("change")); document.querySelector("[data-tab=parts]").click()');
   assert.equal(await evaluate('document.querySelectorAll("#part-one-table tbody tr").length'), 4);
   assert.equal(await evaluate('document.querySelectorAll("#part-two-table tbody tr").length'), 6);
   assert((await evaluate('document.getElementById("land-kpis").innerText')).includes('78,05'));
@@ -64,7 +75,7 @@ try {
   await evaluate('document.getElementById("policy-select").value="bridge_t1_then_untapped"; document.getElementById("policy-select").dispatchEvent(new Event("change"))');
   const after = await evaluate('document.getElementById("ratio-chart").dataset.values');
   assert.notEqual(before, after, 'Policy must change actual chart values');
-  for (const tab of ['overview', 'method', 'documents', 'parts']) {
+  for (const tab of ['overview', 'profiles', 'method', 'documents', 'parts']) {
     await evaluate(`document.querySelector('[data-tab="${tab}"]').click()`);
     assert.equal(await evaluate(`document.getElementById('panel-${tab}').hidden`), false);
     assert.equal(await evaluate('Array.from(document.querySelectorAll("[role=tabpanel]")).filter(x=>!x.hidden).length'), 1);
@@ -73,6 +84,11 @@ try {
   assert((await evaluate('document.getElementById("document-reader").innerText')).includes('Hypergeomancer'));
   const downloaded = await evaluate('fetch("downloads/structural-results.json").then(r=>r.json()).then(x=>x.cells.length)');
   assert.equal(downloaded, 52);
+  assert.equal(await evaluate('fetch("downloads/color-results.json").then(r=>r.json()).then(x=>x.total_trials)'),600000);
+  await evaluate('document.querySelector("[data-tab=profiles]").click(); window.scrollTo(0,0)');
+  await delay(200);
+  let colorShot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+  await writeFile(`${artifacts}/colors-desktop.png`, Buffer.from(colorShot.data, 'base64'));
   await evaluate('document.querySelector("[data-tab=parts]").click(); document.querySelector("[data-mode=OTP]").click(); document.querySelector("[data-lands=\\"19\\"]").click(); document.getElementById("policy-select").value="untapped_first"; document.getElementById("policy-select").dispatchEvent(new Event("change")); window.scrollTo(0,0)');
   await delay(200);
   let shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
@@ -81,12 +97,12 @@ try {
   await delay(250);
   const mobile = await evaluate('({width:innerWidth, body:document.body.scrollWidth, root:document.documentElement.scrollWidth})');
   assert(mobile.body <= mobile.width + 1 && mobile.root <= mobile.width + 1, `Mobile overflow: ${JSON.stringify(mobile)}`);
-  for (const tab of ['overview', 'method', 'documents', 'parts']) {
+  for (const tab of ['overview', 'profiles', 'method', 'documents', 'parts']) {
     await evaluate(`document.querySelector('[data-tab="${tab}"]').click()`);
     const dimensions = await evaluate('({width:innerWidth, body:document.body.scrollWidth})');
     assert(dimensions.body <= dimensions.width + 1, `Overflow on ${tab}`);
   }
-  await evaluate('window.scrollTo(0,0)'); await delay(100);
+  await evaluate('document.querySelector("[data-tab=profiles]").click(); window.scrollTo(0,0)'); await delay(100);
   shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
   await writeFile(`${artifacts}/mobile.png`, Buffer.from(shot.data, 'base64'));
   assert.equal(errors.length, 0, `Browser errors: ${JSON.stringify(errors)}`);

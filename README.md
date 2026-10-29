@@ -15,7 +15,7 @@ HTML/CSS/JavaScript estático, sin servicios externos de gráficos ni instalaci�
 
 ## Estado actual
 
-Prioridad actual: **parte 1, 19/20 tierras; parte 2, ratio de 9–14 bridges; parte 3, colores y spells.** Ya hay un control con turnos de tierras, mulligans y robos naturales, separado OTP/OTD. No simula el motor de hechizos, scry ni hate y no establece una composición final. La referencia sigue pendiente de contraste con la exportación original de Goldfish.
+Prioridad actual: **parte 1, 19/20 tierras; parte 2, ratio de 9–14 bridges; parte 3, colores y spells.** Ya hay un control con turnos de tierras, mulligans y robos naturales, separado OTP/OTD. Ese control estructural no simula hechizos ni scry. La nueva pestaña agrega un goldfish con cinco prioridades de color para decidir el ratio, manteniendo 19 tierras; el hate y la composición final siguen pendientes. La referencia sigue pendiente de contraste con la exportación original de Goldfish.
 
 Resultados actuales: [informe de partes 1 y 2](results/structural_stages/informe.md), [CSV](results/structural_stages/metrics.csv) y [JSON con trazas](results/structural_stages/results.json). Se calcularon probabilidades por estados y se validaron con 104.000 trayectorias (2.000 por celda). Los no terrenos son marcadores inertes: se cuantifica consistencia y coste de entrar girado, no el equilibrio final de Affinity.
 
@@ -63,3 +63,16 @@ La revisión de la referencia está en [ANALISIS_VIDEO_HYPERGEOMANCER.md](ANALIS
 Se guardan semillas, versiones y hashes de los archivos de entrada y del motor. Los intervalos de proporciones individuales no se usan para declarar diferencias emparejadas ni elegir un ganador.
 
 Siguiente etapa: catálogo completo verificado y motor T1–T6 para pagos, filtrado, scry, robos y afinidad. Después se incorporan escenarios de destrucción/exilio y recuperación.
+
+## Colores tempranos y bridges
+
+La pestaña **Colores y bridges** abre por defecto. Compara cinco prioridades de fuentes con 9–14 bridges, 19 tierras, cuatro Boulder y los mismos 41 hechizos. El piloto tiene 120.000 partidas; la confirmación independiente, 600.000. Incluye pagos, scry, afinidad, robo y rebotes, con una política común y sin rival. Son 30 bases representativas, no todas las composiciones.
+
+[Informe y alcance](results/color_bridges/informe.md), [resultados](results/color_bridges/results.json), [CSV](results/color_bridges/metrics.csv).
+
+```sh
+python3 -m src.color_bridge_study --trials 10000 --seed 2026102902 --workers 4 --output results/color_bridges
+python3 scripts/write_color_bridge_report.py
+python3 scripts/build_report.py
+python3 scripts/validate_report.py
+```

@@ -1,8 +1,14 @@
 # Plan de análisis de maná: 4c Affinity
 
-Fecha: 2026-10-29. Versión: 7. Secuencia activa: primero 19/20 tierras; después ratio bridges/enderezadas; recién después composición de colores. Ya hay resultados estructurales sin spells. El motor completo y el hate siguen pendientes. No se eligió una composición final.
+Fecha: 2026-10-29. Versión: 8. Secuencia activa: primero 19/20 tierras; después ratio bridges/enderezadas; recién después composición de colores. Ya hay resultados estructurales sin spells. Se agregó el goldfish de cinco prioridades de color para cerrar el ratio; la búsqueda de composición y el hate siguen pendientes. No se eligió una composición final.
 
-## 0. Orden de trabajo actualizado: partes 1 y 2 primero
+## Actualización: colores tempranos para decidir el ratio
+
+Se autorizó ejecutar y publicar el cruce de 9–14 bridges con azul, blanco, negro, rojo temprano y equilibrado, manteniendo 19 tierras y cuatro Boulder. El piloto inicial usa 2.000 intentos por celda (120.000 en total); la confirmación independiente usa 10.000 (600.000). Siempre OTP/OTD separados. El informe y la recomendación calculada están en [results/color_bridges/informe.md](results/color_bridges/informe.md).
+
+Se seleccionan 30 bases representativas con una función explícita de fuentes naturales, sin presentar este estudio como búsqueda exhaustiva de composiciones. Se usa un mismo piloto con pagos, scry, afinidad, robos y rebotes; no hay interacción. La decisión de trabajo maximiza desarrollo T2–T3 en el perfil equilibrado, con igual peso OTP/OTD; se conservan acceso a cuatro colores y amenazas como indicadores separados. La composición concreta se optimizará después y puede llevar a revisar el ratio. Citadel queda para ese cruce con resistencia; este experimento sin rival fija cero copias.
+
+## 0. Orden de trabajo: antecedente de las partes 1 y 2
 
 El jugador pide simplificar y ordenar el análisis. Las secciones posteriores conservan la metodología de la etapa completa, pero la búsqueda de millones de bases y la selección de 120 perfiles quedan pausadas hasta revisar estas dos partes.
 

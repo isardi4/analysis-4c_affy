@@ -14,7 +14,8 @@
     mode: params.get('mode') === 'OTD' ? 'OTD' : 'OTP',
     lands: params.get('lands') === '20' ? 20 : 19,
     policy: params.get('policy') === 'bridge_t1_then_untapped' ? 'bridge_t1_then_untapped' : 'untapped_first',
-    tab: ['overview', 'parts', 'method', 'documents'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'parts',
+    profile: ['balanced', 'blue', 'white', 'black', 'red'].includes(params.get('profile')) ? params.get('profile') : 'balanced',
+    tab: ['overview', 'parts', 'profiles', 'method', 'documents'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'profiles',
   };
   let chartId = 0;
   const cell = (part, lands, mode, bridges = 0, policy = 'untapped_first') => {
@@ -143,7 +144,7 @@
   }
   function updateURL() {
     const p = new URLSearchParams();
-    p.set('mode', state.mode); p.set('lands', state.lands); p.set('policy', state.policy);
+    p.set('mode', state.mode); p.set('lands', state.lands); p.set('policy', state.policy); p.set('profile', state.profile);
     history.replaceState(null, '', `${location.pathname}?${p}#${state.tab}`);
   }
   function activateTab(name, focus = false) {
@@ -155,6 +156,7 @@
       if (active && focus) button.focus();
     });
     if (name === 'parts') { renderFixedCharts(); renderPartOne(); renderPartTwo(); }
+    if (name === 'profiles') renderProfiles();
     updateURL();
   }
   function renderPartOne() {
@@ -237,7 +239,49 @@
     $('mode-explainer').textContent = state.mode === 'OTP'
       ? 'OTP decide el mulligan sobre siete cartas y no roba en T1.'
       : 'OTD decide el mulligan sobre siete cartas y roba una al comenzar T1.';
-    renderPartOne(); renderPartTwo(); updateURL();
+    renderPartOne(); renderPartTwo(); renderProfiles(); updateURL();
+  }
+  function renderProfiles() {
+    const S = D.color_study;
+    if (!S) return;
+    const cells = S.cells.filter(c => c.profile === state.profile && c.mode === state.mode).sort((a,b) => a.bridges-b.bridges);
+    const rate = (c, metric) => c.metrics[metric].p;
+    const hue = { W: '#b19440', U: '#6685b1', B: '#76677e', R: '#cb714f' };
+    const title = { W: 'Blanco', U: 'Azul', B: 'Negro', R: 'Rojo' };
+    const winner = cells.reduce((a,b) => rate(b,'needed_t2_t3') > rate(a,'needed_t2_t3') ? b : a);
+    const recommended = S.decision.bridges;
+    const control = S.decision.control_bridges;
+    const a = Math.min(recommended,control), b = Math.max(recommended,control);
+    const delta = S.paired_comparisons.find(x => x.profile === 'balanced' && x.mode === state.mode && x.a === a && x.b === b && x.metric === 'needed_t2_t3');
+    const sign = recommended === a ? 1 : -1;
+    const ci = delta.ci95.map(x => 100*x*sign).sort((x,y) => x-y);
+    $('profile-select').value = state.profile;
+    $('color-decision-title').textContent = S.decision.title;
+    $('color-decision-text').textContent = `${S.decision.text} En equilibrado ${state.mode}, ${recommended} frente a ${control}: ${points(100*sign*delta.difference)} de desarrollo, IC 95% [${fmt(ci[0])}; ${fmt(ci[1])}] pp. ${ci[0] <= 0 && ci[1] >= 0 ? 'El intervalo incluye cero: esta comparación no separa con claridad ambos ratios.' : 'El intervalo de esta comparación no incluye cero.'}`;
+    $('color-next-step').textContent = S.decision.next_step;
+    $('color-sample-note').textContent = `${integer(S.n_per_cell)} partidas por caso · ${integer(S.total_trials)} en la confirmación independiente · 19 tierras / 4 Boulder. Los controles de 19/20 y orden de tierras de la otra pestaña no modifican este experimento.`;
+    metrics($('color-kpis'), [
+      { label: 'Mejor desarrollo · perfil actual', value: `${winner.bridges}`, suffix: 'bridges', caption: `${state.mode} · ${S.profiles[state.profile].label}`, color: 'green' },
+      { label: 'Desarrollo T2 y T3', value: pct(rate(winner,'needed_t2_t3')), caption: 'Al menos un hechizo de desarrollo por turno' },
+      { label: 'Cuatro colores · hasta T3', value: pct(rate(winner,'all4_t3')), caption: `En la base de ${winner.bridges} bridges; accesos individuales` },
+      { label: 'Amenaza · hasta T3', value: pct(rate(winner,'threat_t3')), caption: 'Familiar, Utrom o Enforcer lanzado' },
+    ]);
+    const labels = cells.map(c => `${c.bridges} B`);
+    const series = (key,name,color) => ({name,color,values:cells.map(c => rate(c,key)*100)});
+    chart($('color-function-chart'), {title:'Desarrollo de hechizos según cantidad de bridges',labels,series:[
+      series('needed_t2_t3','Desarrollo T2–T3','#267c72'), series('threat_t3','Amenaza T3','#cb714f'), series('relic_t2','Cryogen T2','#6685b1')]});
+    chart($('color-access-chart'), {title:'Acceso individual a los cuatro colores',labels,series:[
+      series('all4_t2','Hasta T2','#b19440'),series('all4_t3','Hasta T3','#267c72'),series('all4_t4','Hasta T4','#76677e')]});
+    chart($('color-early-chart'), {title:'Un maná de cada color en T1',labels,series:Object.keys(hue).map(c => series(`${c}_t1`,title[c],hue[c]))});
+    chart($('color-two-chart'), {title:'Capacidad de pagar genérico más un color en T2',labels,series:Object.keys(hue).map(c => series(`two_mana_${c}_t2`,`1${c} · ${title[c]}`,hue[c]))});
+    const interval = (c,key) => `${pct(rate(c,key))} [${c.metrics[key].ci95.map(x=>fmt(100*x)).join('–')}]`;
+    makeTable($('color-results-table'), ['Bridges','Enderezadas','Desarrollo T2–T3 [IC 95%]','T1–T3','Amenaza T3','Cryogen T2','4 colores T3','Boulder operativo T3','Screw T4 · keeps','Robos extra · T3'], cells.map(c => ({active:c.bridges===recommended,values:[c.bridges,19-c.bridges,interval(c,'needed_t2_t3'),pct(rate(c,'needed_t1_t3')),pct(rate(c,'threat_t3')),pct(rate(c,'relic_t2')),pct(rate(c,'all4_t3')),pct(rate(c,'boulder_t3')),pct(c.means.screw_conditional_kept),fmt(c.means.extra_draws_t3)]})));
+    makeTable($('color-profile-table'), ['Prioridad','Mejor desarrollo OTP','Mejor desarrollo OTD','Mejor desarrollo · media','Mejor 4 colores T3 · media'], Object.entries(S.profiles).map(([key,p]) => {
+      const best = mode => S.cells.filter(c=>c.profile===key && c.mode===mode).reduce((a,b)=>rate(b,'needed_t2_t3')>rate(a,'needed_t2_t3')?b:a).bridges;
+      const w=S.profile_winners.find(x=>x.profile===key);
+      return {active:key===state.profile,values:[p.label,`${best('OTP')} B`,`${best('OTD')} B`,`${w.development} B`,`${w.all4} B`]};
+    }));
+    makeTable($('color-bases-table'), ['Bridges','Fuentes W/U/B/R','Tierras exactas'], S.candidates.filter(c=>c.profile===state.profile).sort((a,b)=>a.bridges-b.bridges).map(c=>({values:[c.bridges,Object.values(c.sources).join(' / '),Object.entries(c.lands).map(([name,n])=>`${n} ${name}`).join(' · ')]})));
   }
   function renderMethod() {
     metrics($('method-kpis'), [
@@ -342,12 +386,13 @@
   document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => { state.mode = button.dataset.mode; syncControls(); }));
   document.querySelectorAll('[data-lands]').forEach(button => button.addEventListener('click', () => { state.lands = Number(button.dataset.lands); syncControls(); }));
   $('policy-select').addEventListener('change', () => { state.policy = $('policy-select').value; syncControls(); });
+  $('profile-select').addEventListener('change', () => { state.profile = $('profile-select').value; renderProfiles(); updateURL(); });
   document.querySelectorAll('a[href="#overview"]').forEach(link => link.addEventListener('click', event => { event.preventDefault(); activateTab('overview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }));
-  addEventListener('hashchange', () => { const tab = location.hash.slice(1); if (['overview', 'parts', 'method', 'documents'].includes(tab)) activateTab(tab); });
+  addEventListener('hashchange', () => { const tab = location.hash.slice(1); if (['overview', 'parts', 'profiles', 'method', 'documents'].includes(tab)) activateTab(tab); });
   let resizeTimer;
   addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => { renderFixedCharts(); renderPartOne(); renderPartTwo(); }, 120);
+    resizeTimer = setTimeout(() => { renderFixedCharts(); renderPartOne(); renderPartTwo(); renderProfiles(); }, 120);
   });
   renderFixedCharts(); renderMethod(); renderDocument(); syncControls(); activateTab(state.tab);
   document.body.dataset.ready = 'true';

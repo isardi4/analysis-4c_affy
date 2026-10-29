@@ -1,5 +1,5 @@
 {
-  "data_version": "1.0",
+  "data_version": "1.1",
   "files": {
     "structural-results.json": {
       "source": "results/structural_stages/results.json",
@@ -27,7 +27,7 @@
     },
     "plan.md": {
       "source": "PLAN_ANALISIS.md",
-      "sha256": "cda6817b08a0513bdd46015e588d163512ec651336a29761e4f0b5c41a0e1aec"
+      "sha256": "f604aeaf46559cc6318dd57a22ea474336a9080c810f6c408a1388ea29e5ce8f"
     },
     "video-analysis.md": {
       "source": "ANALISIS_VIDEO_HYPERGEOMANCER.md",
@@ -40,6 +40,18 @@
     "message.txt": {
       "source": "message.txt",
       "sha256": "eca1a54eda676517e4ff999a260d3cd738023e03c2c878cc97fcf53d891bc897"
+    },
+    "color-results.json": {
+      "source": "results/color_bridges/results.json",
+      "sha256": "42fb95d4b4879220f6001fbef9e8adba969624d68279e3c8ee6cca732fbc041b"
+    },
+    "color-metrics.csv": {
+      "source": "results/color_bridges/metrics.csv",
+      "sha256": "d7418df4463fe8984dc3bee37c904e4447661a9a2432800cf0d2c28e1a2392ee"
+    },
+    "color-report.md": {
+      "source": "results/color_bridges/informe.md",
+      "sha256": "515be4030e34351d0a8498af65650b7e9ec3093193220326c964fc7922f12001"
     }
   }
 }
