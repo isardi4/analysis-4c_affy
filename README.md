@@ -76,3 +76,15 @@ python3 scripts/write_color_bridge_report.py
 python3 scripts/build_report.py
 python3 scripts/validate_report.py
 ```
+
+## Pesos independientes de color
+
+En **Colores y bridges → Qué colores pueden esperar**, cada color W/U/B/R tiene un control de 0 a 1. Se pueden reducir varios a la vez. El explorador busca exactamente entre las bases de 19 tierras con el ratio elegido (9–14 bridges), máximo cuatro copias por tierra, sin básicas ni Citadel. Con 10 bridges son 120.480 bases. Cuatro Boulder y los hechizos permanecen fijos. La configuración se comparte por URL y se descarga como JSON.
+
+El objetivo es la suma ponderada de probabilidades de encontrar una fuente natural entre nueve cartas sin mulligan. Los empates usan cobertura de fuentes enderezadas entre siete según los mismos pesos; no se favorece un color fijo. Pesos relativos iguales producen la misma elección. Cero deja de exigir ese color en el objetivo, sin retirar sus hechizos. Todos en cero requiere corregir los pesos.
+
+Esta búsqueda genera una base orientativa, con fuentes, cambios frente a pesos iguales y probabilidades hipergeométricas. No simula pagos, Boulder ni partidas; los resultados Monte Carlo previos siguen separados y sin cambios. No se puede interpretar peso 0,50 como 50% de acceso ni como una fecha de llegada.
+
+```sh
+node --test tests/composition.test.cjs
+```

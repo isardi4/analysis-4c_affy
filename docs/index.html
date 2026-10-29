@@ -7,9 +7,10 @@
   <meta name="description" content="Laboratorio de maná de 4c Affinity: 19 o 20 tierras, 9–14 bridges, cinco perfiles de color y goldfish OTP/OTD reproducible.">
   <title>4c Affinity · Laboratorio de maná</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="lab.css?v=20261029-colors1">
-  <script defer src="report-data.js?v=20261029-colors1"></script>
-  <script defer src="lab.js?v=20261029-colors1"></script>
+  <link rel="stylesheet" href="lab.css?v=20261029-weights1">
+  <script defer src="report-data.js?v=20261029-weights1"></script>
+  <script defer src="composition.js?v=20261029-weights1"></script>
+  <script defer src="lab.js?v=20261029-weights1"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Ir al análisis</a>
@@ -60,6 +61,22 @@
     <section id="panel-profiles" role="tabpanel" aria-labelledby="tab-profiles" hidden>
       <div class="section-heading"><div><p class="eyebrow">CINCO PRIORIDADES / UNA MISMA POLÍTICA</p><h2>Cuántos bridges.<br>Con colores y hechizos.</h2></div><p class="section-description">19 tierras, cuatro Boulder y los mismos 41 hechizos. Se comparan 9–14 bridges con bases orientadas a azul, blanco, negro, rojo o equilibrio. La composición exacta será el próximo estudio.</p></div>
       <div class="finding" id="color-recommendation"><span class="finding-number">→</span><div><h3 id="color-decision-title"></h3><p id="color-decision-text"></p></div></div>
+      <article class="prose-card full-prose" id="composition-explorer">
+        <span class="label">COMPOSICIÓN / PESOS INDEPENDIENTES</span><h3>Qué colores pueden esperar.</h3>
+        <p>Empezá con todos en 1 y bajá cualquier color, o varios a la vez. Un peso de 0,50 da la mitad de importancia a encontrar esa fuente natural; no significa 50% de acceso ni garantiza un turno. Un peso de 0 deja de exigir fuentes naturales de ese color; sus hechizos siguen en el mazo.</p>
+        <div class="weight-grid" id="weight-controls">
+          <label style="--mana-color:#b19440" for="weight-W"><span>W · Blanco <output id="weight-value-W" for="weight-W">1,00</output></span><input id="weight-W" type="range" min="0" max="1" step="0.05" value="1" data-weight="W"></label>
+          <label style="--mana-color:#6685b1" for="weight-U"><span>U · Azul <output id="weight-value-U" for="weight-U">1,00</output></span><input id="weight-U" type="range" min="0" max="1" step="0.05" value="1" data-weight="U"></label>
+          <label style="--mana-color:#76677e" for="weight-B"><span>B · Negro <output id="weight-value-B" for="weight-B">1,00</output></span><input id="weight-B" type="range" min="0" max="1" step="0.05" value="1" data-weight="B"></label>
+          <label style="--mana-color:#cb714f" for="weight-R"><span>R · Rojo <output id="weight-value-R" for="weight-R">1,00</output></span><input id="weight-R" type="range" min="0" max="1" step="0.05" value="1" data-weight="R"></label>
+        </div>
+        <div class="weight-actions"><label for="weight-bridges">Bridges <select id="weight-bridges"><option>9</option><option selected>10</option><option>11</option><option>12</option><option>13</option><option>14</option></select></label><button type="button" id="weight-reset" class="download-pill">Todos en 1</button><button type="button" id="weight-download" class="download-pill">Descargar esta base ↓</button><span class="chart-caption">19 tierras · 4 Boulder · sin básicas ni Citadel</span></div>
+        <p id="weight-status" role="status" aria-live="polite"></p>
+        <div id="weight-result"><div id="weight-sources" class="table-scroll"></div><div class="method-columns weight-lists"><div><span class="label">BRIDGES</span><div id="weight-bridge-list"></div></div><div><span class="label">ENDEREZADAS</span><div id="weight-mono-list"></div></div></div>
+        <p class="chart-caption">Los porcentajes indican encontrar al menos una fuente natural entre 7 o 9 cartas vistas, sin mulligan, scry ni robos adicionales; no son probabilidades de pagar un hechizo en T1/T3. Boulder no se cuenta como una tierra adicional.</p></div>
+        <p class="chart-caption">La búsqueda maximiza la suma ponderada de acceso natural en nueve cartas. Entre empates, favorece fuentes enderezadas en siete según los mismos pesos, sin preferencia fija por azul o negro. Se muestra una base representativa: otras composiciones pueden empatar.</p>
+        <p class="weight-scope"><strong>Esta base personalizada todavía no tiene una simulación de partidas.</strong> Los gráficos siguientes corresponden únicamente a los cinco perfiles fijos del experimento anterior. Mover estos controles no cambia esos resultados.</p>
+      </article>
       <div class="control-bar profile-controls"><div><span class="label">POSICIÓN</span><div class="segmented"><button data-mode="OTP" aria-pressed="true">OTP · Salgo</button><button data-mode="OTD" aria-pressed="false">OTD · Robo</button></div></div><label for="profile-select"><span class="label">PRIORIDAD DE LA BASE</span><select id="profile-select"><option value="balanced">Equilibrado</option><option value="blue">Azul temprano</option><option value="white">Blanco temprano</option><option value="black">Negro temprano</option><option value="red">Rojo temprano</option></select></label><p id="color-sample-note" class="chart-caption"></p></div>
       <div class="metric-strip" id="color-kpis"></div>
       <div class="chart-grid equal-grid"><article class="chart-card"><div class="card-heading"><div><span class="label">PAGAR Y DESARROLLAR</span><h3>Lo que el mazo logra jugar</h3></div></div><div id="color-function-chart" class="chart-host"></div><p class="chart-caption">Desarrollo: al menos un hechizo de motor o criatura en T2 y también en T3. Amenaza: Familiar, Utrom o Enforcer lanzado hasta T3. Cryogen: lanzado hasta T2. Todos los intentos, incluidos fallos de mulligan.</p></article><article class="chart-card"><div class="card-heading"><div><span class="label">FIJAR LOS COLORES</span><h3>Acceso a los cuatro colores</h3></div></div><div id="color-access-chart" class="chart-host"></div><p class="chart-caption">Acceso observado alguna vez hasta el turno indicado. Poder producir W, U, B o R individualmente no equivale a pagar WUBR juntos ni a tener cuatro manás. Un Boulder enderezado con una tierra disponible puede dar los cuatro accesos.</p></article></div>

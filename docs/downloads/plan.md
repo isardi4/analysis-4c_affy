@@ -1,6 +1,12 @@
 # Plan de análisis de maná: 4c Affinity
 
-Fecha: 2026-10-29. Versión: 8. Secuencia activa: primero 19/20 tierras; después ratio bridges/enderezadas; recién después composición de colores. Ya hay resultados estructurales sin spells. Se agregó el goldfish de cinco prioridades de color para cerrar el ratio; la búsqueda de composición y el hate siguen pendientes. No se eligió una composición final.
+Fecha: 2026-10-29. Versión: 9. Secuencia activa: primero 19/20 tierras; después ratio bridges/enderezadas; recién después composición de colores. Ya hay resultados estructurales sin spells. Se agregó el goldfish de cinco prioridades de color para cerrar el ratio; la búsqueda de composición y el hate siguen pendientes. No se eligió una composición final.
+
+## Composición: pesos independientes W/U/B/R
+
+El jugador quiere poder bajar el peso de cualquier color, o de varios simultáneamente. El HTML agrega un explorador con cuatro controles 0–1 y ratio 9–14 (por defecto 10 bridges + 9 enderezadas). No hay preferencia fija por U/B en los desempates de este nuevo generador. Se mantienen 19 tierras, cuatro Boulder, máximo cuatro copias, sin básicas ni Citadel.
+
+La búsqueda exacta del objetivo analítico combina probabilidades hipergeométricas naturales en nueve cartas con pesos relativos. Entre empates usa cobertura ponderada de enderezadas en siete, y después un orden estable. Se muestran una base representativa, fuentes por color y su diferencia frente a todos los pesos en 1, más exportación JSON. Los porcentajes son de cartas vistas sin mulligan; no equivalen a acceso operativo por turno. El archivo personalizado queda marcado sin simulación de partidas. El próximo cálculo debe simular candidatos elegidos con estos controles y medir el coste de postergar cada color; los gráficos Monte Carlo actuales no se recalculan al moverlos.
 
 ## Actualización: colores tempranos para decidir el ratio
 

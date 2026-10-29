@@ -10,11 +10,14 @@
   const integer = (x) => Number(x).toLocaleString('es-AR');
   const points = (x) => `${x > 0 ? '+' : x < 0 ? '−' : ''}${fmt(Math.abs(x), 2)} pp`;
   const params = new URLSearchParams(location.search);
+  const requestedWeights = (params.get('weights') || '1,1,1,1').split(',').map(Number);
   const state = {
     mode: params.get('mode') === 'OTD' ? 'OTD' : 'OTP',
     lands: params.get('lands') === '20' ? 20 : 19,
     policy: params.get('policy') === 'bridge_t1_then_untapped' ? 'bridge_t1_then_untapped' : 'untapped_first',
     profile: ['balanced', 'blue', 'white', 'black', 'red'].includes(params.get('profile')) ? params.get('profile') : 'balanced',
+    weights: requestedWeights.length===4 && requestedWeights.every(w=>Number.isFinite(w)&&w>=0&&w<=1) ? requestedWeights.map(w=>Math.round(w*20)/20) : [1,1,1,1],
+    compositionBridges: [9,10,11,12,13,14].includes(Number(params.get('bridges'))) ? Number(params.get('bridges')) : 10,
     tab: ['overview', 'parts', 'profiles', 'method', 'documents'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'profiles',
   };
   let chartId = 0;
@@ -145,6 +148,7 @@
   function updateURL() {
     const p = new URLSearchParams();
     p.set('mode', state.mode); p.set('lands', state.lands); p.set('policy', state.policy); p.set('profile', state.profile);
+    p.set('weights',state.weights.join(',')); p.set('bridges',state.compositionBridges);
     history.replaceState(null, '', `${location.pathname}?${p}#${state.tab}`);
   }
   function activateTab(name, focus = false) {
@@ -295,6 +299,37 @@
     makeTable($('pilot-table'), ['Política', 'N', 'Boulder conservado', 'Boulder + enderezada', 'Cartas medias*', 'Fallo'], ps.map(c => ({ values: [c.policy === 'min_two' ? 'Mínimo dos tierras' : 'Buscar Boulder una vez', integer(c.n), pct(c.events.kept_boulder.rate), pct(c.events.kept_boulder_untapped.rate), fmt(c.mean_cards_unconditional, 3), pct(c.events.failed.rate)] })));
     $('universe-count').textContent = integer(D.search.scope_totals.wubr_core);
   }
+  let proposedBase;
+  const weightBaselines = new Map();
+  function renderWeights() {
+    const C = globalThis.AffinityComposition;
+    C.colors.forEach((c,i)=>{ $(`weight-${c}`).value=state.weights[i]; $(`weight-value-${c}`).textContent=fmt(state.weights[i]); });
+    $('weight-bridges').value=state.compositionBridges;
+    if (!state.weights.some(w=>w>0)) {
+      proposedBase=null;
+      $('weight-status').textContent='Asigná al menos un peso mayor que cero para elegir una composición.';
+      $('weight-status').dataset.state='invalid';
+      $('weight-result').hidden=true;
+      $('weight-download').disabled=true;
+      return;
+    }
+    proposedBase=C.choose(state.weights,state.compositionBridges);
+    if (!weightBaselines.has(state.compositionBridges)) weightBaselines.set(state.compositionBridges,C.choose([1,1,1,1],state.compositionBridges));
+    const baseline=weightBaselines.get(state.compositionBridges);
+    const names=['Blanco','Azul','Negro','Rojo'];
+    $('weight-result').hidden=false;
+    $('weight-download').disabled=false;
+    $('weight-status').dataset.state='ready';
+    $('weight-status').textContent=`Una base orientativa entre ${integer(proposedBase.bases_evaluated)} composiciones: ${proposedBase.bridges} bridges + ${proposedBase.untapped} enderezadas. ${integer(proposedBase.primary_ties)} bases empatan en el objetivo de fuentes naturales; se aplica el desempate explicado abajo.`;
+    $('weight-result').dataset.sources=JSON.stringify(proposedBase.sources);
+    makeTable($('weight-sources'),['Color','Peso','Fuentes naturales','Enderezadas','Cambio vs. todos en 1','≥1 natural en 7 cartas','≥1 natural en 9 cartas'],C.colors.map((c,i)=>{
+      const delta=proposedBase.sources[i]-baseline.sources[i];
+      return {values:[`${c} · ${names[i]}`,fmt(state.weights[i]),proposedBase.sources[i],proposedBase.untapped_sources[i],`${delta>0?'+':''}${delta}`,pct(proposedBase.natural_in_7[i]),pct(proposedBase.natural_in_9[i])]};
+    }));
+    const landRows = entries=>entries.filter(([name])=>proposedBase.lands[name]).map(([name])=>({values:[proposedBase.lands[name],name]}));
+    makeTable($('weight-bridge-list'),['Copias','Tierra'],landRows(C.bridges));
+    makeTable($('weight-mono-list'),['Copias','Tierra'],landRows(C.monos.map(name=>[name])));
+  }
   function safeSourceURL(href, documentPath) {
     if (/^https?:\/\//i.test(href)) return href;
     if (/^(javascript|data|vbscript):/i.test(href)) return null;
@@ -387,6 +422,19 @@
   document.querySelectorAll('[data-lands]').forEach(button => button.addEventListener('click', () => { state.lands = Number(button.dataset.lands); syncControls(); }));
   $('policy-select').addEventListener('change', () => { state.policy = $('policy-select').value; syncControls(); });
   $('profile-select').addEventListener('change', () => { state.profile = $('profile-select').value; renderProfiles(); updateURL(); });
+  document.querySelectorAll('[data-weight]').forEach(input=>input.addEventListener('input',()=>{
+    state.weights[globalThis.AffinityComposition.colors.indexOf(input.dataset.weight)]=Number(input.value);
+    renderWeights(); updateURL();
+  }));
+  $('weight-bridges').addEventListener('change',()=>{state.compositionBridges=Number($('weight-bridges').value);renderWeights();updateURL();});
+  $('weight-reset').addEventListener('click',()=>{state.weights=[1,1,1,1];renderWeights();updateURL();});
+  $('weight-download').addEventListener('click',()=>{
+    if (!proposedBase) return;
+    const exported={...proposedBase,deck_size:60,land_count:19,boulders:4,game_simulated:false};
+    const url=URL.createObjectURL(new Blob([JSON.stringify(exported,null,2)+'\n'],{type:'application/json'}));
+    const link=node('a');link.href=url;link.download=`base-${state.compositionBridges}bridges-WUBR-${state.weights.join('-')}.json`;
+    document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  });
   document.querySelectorAll('a[href="#overview"]').forEach(link => link.addEventListener('click', event => { event.preventDefault(); activateTab('overview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }));
   addEventListener('hashchange', () => { const tab = location.hash.slice(1); if (['overview', 'parts', 'profiles', 'method', 'documents'].includes(tab)) activateTab(tab); });
   let resizeTimer;
@@ -394,6 +442,6 @@
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => { renderFixedCharts(); renderPartOne(); renderPartTwo(); renderProfiles(); }, 120);
   });
-  renderFixedCharts(); renderMethod(); renderDocument(); syncControls(); activateTab(state.tab);
+  renderFixedCharts(); renderMethod(); renderDocument(); renderWeights(); syncControls(); activateTab(state.tab);
   document.body.dataset.ready = 'true';
 })();

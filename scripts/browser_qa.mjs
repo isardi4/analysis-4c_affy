@@ -49,6 +49,21 @@ try {
   assert((await evaluate('document.getElementById("color-sample-note").textContent')).includes('600.000'));
   assert.equal(await evaluate('document.querySelectorAll("#color-function-chart .chart-value-label").length'), 18);
   assert.equal(await evaluate('document.querySelectorAll("#color-early-chart .chart-value-label").length'), 24);
+  assert((await evaluate('document.getElementById("weight-status").textContent')).includes('120.480'));
+  const sourceBaseline=await evaluate('JSON.parse(document.getElementById("weight-result").dataset.sources)');
+  for (const [i,color] of ['W','U','B','R'].entries()) {
+    await evaluate(`document.getElementById('weight-reset').click(); document.getElementById('weight-${color}').value='0.5'; document.getElementById('weight-${color}').dispatchEvent(new Event('input'))`);
+    const sources=await evaluate('JSON.parse(document.getElementById("weight-result").dataset.sources)');
+    assert(sources[i]<sourceBaseline[i],`${color} must be independently reducible`);
+  }
+  await evaluate('document.getElementById("weight-W").value="0.5"; document.getElementById("weight-W").dispatchEvent(new Event("input"))');
+  assert((await evaluate('location.search')).includes('weights=0.5%2C1%2C1%2C0.5'));
+  await evaluate('document.querySelectorAll("[data-weight]").forEach(x=>{x.value="0";x.dispatchEvent(new Event("input"))})');
+  assert.equal(await evaluate('document.getElementById("weight-status").dataset.state'),'invalid');
+  assert.equal(await evaluate('document.getElementById("weight-result").hidden'),true);
+  assert.equal(await evaluate('document.getElementById("weight-download").disabled'),true);
+  await evaluate('document.getElementById("weight-reset").click()');
+  assert.equal(await evaluate('document.getElementById("weight-status").dataset.state'),'ready');
   const balanced = await evaluate('document.getElementById("color-function-chart").dataset.values');
   for (const profile of ['blue','white','black','red']) {
     await evaluate(`document.getElementById('profile-select').value='${profile}'; document.getElementById('profile-select').dispatchEvent(new Event('change'))`);
