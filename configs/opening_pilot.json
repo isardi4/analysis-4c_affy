@@ -1,0 +1,30 @@
+{
+  "stage": "01_opening_hands_only",
+  "trials_per_cell": 2000,
+  "seed": 20261029,
+  "minimum_lands": 2,
+  "minimum_lands_applies_to": "Every kept hand, including the original seven and the final hand after London bottoming",
+  "default_floor": 4,
+  "floor_status": "Methodological proposal, not a player-selected rule; failures are retained in every unconditional denominator",
+  "policies": ["min_two", "seek_boulder_once"],
+  "policy_definitions": {
+    "min_two": "Keep any hand with at least two lands after bottoming. No other rejection criterion in this control policy.",
+    "seek_boulder_once": "At seven require at least two lands and Boulder; after the first mulligan require only at least two lands. At most one voluntary mulligan for missing Boulder."
+  },
+  "bottom_policy": "From legal subsets retain a Boulder plus an untapped land if possible, then a first Boulder, then aim for 3 lands at sizes >=5 or 2 below, then color breadth, fewer duplicate Boulders, draw spells and threats; deterministic name/order tiebreak. No hidden-library information.",
+  "boulder_counts": [4, 3, 2],
+  "land_families": [
+    {"id": "original19", "changes": {}, "description": "Base original de 19 tierras"},
+    {"id": "citadel_for_vault19", "changes": {"Vault of Whispers": -1, "Darksteel Citadel": 1}, "description": "Citadel reemplaza una tierra negra enderezada"},
+    {"id": "citadel_for_bridge19", "changes": {"Drossforge Bridge": -1, "Darksteel Citadel": 1}, "description": "Citadel reemplaza un bridge B/R"},
+    {"id": "add_citadel20", "changes": {"Darksteel Citadel": 1}, "description": "Tierra 20: una Citadel adicional"}
+  ],
+  "balance_policy": "For 20 lands / 4 Boulder cut one Nihil Spellbomb. Fill slots freed by fewer Boulder with Nihil Spellbomb up to 4, then Myr Enforcer up to 4, then Glint Hawk up to 4.",
+  "floor_sensitivity": {"family": "original19", "boulder_count": 4, "additional_floors": [3, 2]},
+  "limitations": [
+    "Only opening hands and London mulligans: no turn simulation, scry, extra draws, affinity payments or opposing hate.",
+    "Boulder plus an untapped land in hand means a potential T1 cast without interaction, not an operational filter on T1.",
+    "The same seed per trial shares shuffle randomness across cells; no paired-difference confidence interval or winner is claimed.",
+    "Basic lands, the other bridge pairs and additional Citadel counts are planned extensions, not tested by this first pilot."
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "pintofmilk_british_pauper_open_2026_10_03",
+  "snapshot_date": "2026-10-29",
+  "format": "Pauper",
+  "requested_source": "https://www.mtggoldfish.com/deck/7987749#paper",
+  "list_source": "https://www.mtgtop8.com/event?d=896355&e=91683&f=PAU",
+  "verification_status": "candidate_from_indexed_list_same_player_and_event; original Goldfish export not accessible",
+  "cards": {
+    "Ancient Den": 1,
+    "Great Furnace": 1,
+    "Seat of the Synod": 4,
+    "Vault of Whispers": 3,
+    "Drossforge Bridge": 3,
+    "Mistvault Bridge": 2,
+    "Razortide Bridge": 4,
+    "Rustvale Bridge": 1,
+    "Glint Hawk": 3,
+    "Myr Enforcer": 3,
+    "Refurbished Familiar": 4,
+    "Utrom Monitor": 4,
+    "Dispatch": 3,
+    "Galvanic Blast": 4,
+    "Reckoner's Bargain": 3,
+    "Thoughtcast": 4,
+    "Blood Fountain": 2,
+    "Cryogen Relic": 4,
+    "Giant's Boulder": 4,
+    "Makeshift Munitions": 1,
+    "Nihil Spellbomb": 2
+  },
+  "sideboard": {
+    "Blue Elemental Blast": 4,
+    "Krark-Clan Shaman": 3,
+    "Pyroblast": 4,
+    "Tithing Blade": 1,
+    "Toxin Analysis": 2,
+    "Vandalblast": 1
+  }
+}

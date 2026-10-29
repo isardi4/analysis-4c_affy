@@ -1,0 +1,33 @@
+{
+  "stage": "02_complete_mana_domain_and_exact_opening_profiles",
+  "land_totals": [19, 20],
+  "nonbasic_copy_limit": 4,
+  "maximum_basic_lands_total": 0,
+  "bridge_range": [9, 14],
+  "bridge_bands": {"principal": [9, 12], "exploratorio": [13, 14]},
+  "boulder_counts": [4, 3, 2, 1, 0],
+  "scopes": {
+    "wubr_core": {
+      "role": "Active domain: W/U/B/R artifact lands and six bridge pairs, 9–14 bridges total and no basics. All distributions inside these bounds are searchable.",
+      "bridges": ["Razortide Bridge", "Mistvault Bridge", "Drossforge Bridge", "Rustvale Bridge", "Goldmire Bridge", "Silverbluff Bridge"],
+      "ordinary_artifact_lands": ["Ancient Den", "Seat of the Synod", "Vault of Whispers", "Great Furnace"],
+      "citadel": ["Darksteel Citadel"],
+      "basics": []
+    }
+  },
+  "restrictions": [
+    "Every named land ranges from zero to four, including Citadel. Total bridges are 9–14 inclusive. No fixed Vault, Synod, Furnace or Citadel count is imposed.",
+    "Exactly 19 or 20 lands. Basic lands and their Wildfire analysis are excluded at the player's request.",
+    "The active pool is the W/U/B/R subset formerly counted as 32,205,701 with optional basics. The green extension is inactive, not proven dominated; this is a declared practical scope.",
+    "Other lands such as tapped nonartifact duals, fetches or utility lands are outside this declared domain unless later added explicitly.",
+    "Counts and opening metrics do not certify card legality or full turn/hate behavior. Verify Oracle and current legality before the turn simulator.",
+    "Grouping is exact only for metrics that depend exclusively on the grouping variables. Never merge two bases for color sequencing or hate based solely on these opening groups."
+  ],
+  "search_protocol": [
+    "Represent and count every base exactly using bounded compositions and generating functions.",
+    "Evaluate exact opening controls for every base through proven-equivalent aggregate profiles; save profile multiplicities and coverage totals.",
+    "Add per-card color, pair and vulnerability information for the turn model. Discard branches only with a valid bound or explicit infeasibility certificate for the declared objectives.",
+    "Stratify Monte Carlo by bridge count 9–14; 9–12 is the principal band and 13–14 exploratory. Do not discard 13–14 simply for entering tapped.",
+    "Keep uncertainty-aware finalists and confirm with new seeds; state exactly what was counted, evaluated analytically, simulated or pruned."
+  ]
+}

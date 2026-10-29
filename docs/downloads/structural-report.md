@@ -1,0 +1,100 @@
+# Parte 1 y 2: cantidad de tierras y coste de entrar giradas
+
+**Modelo estructural, no recomendación final del mazo.** Solo robos naturales y tierras. Sin colores, spells, scry, robos extra, afinidad ni rival. Cada no tierra es un marcador inerte. La capa siguiente incorporará el motor real y puede cambiar decisiones provisionales.
+
+Las probabilidades centrales son exactas por enumeración de estados. El Monte Carlo de 2.000 intentos por celda verifica la implementación; no decide entre resultados exactos.
+
+## Mano inicial y mulligan
+
+Ambos modos deciden el mulligan con siete cartas. OTD roba una al inicio de T1; OTP no. Conservar requiere al menos dos tierras desde la primera mano; el piso de cuatro y la selección del fondo son propuestas explícitas en la configuración. Con la misma regla, el mulligan tiene la misma distribución en OTP y OTD.
+
+| Tierras en las siete originales | Base de 19 | Base de 20 |
+| ---: | ---: | ---: |
+| 0 | 5.82% | 4.83% |
+| 1 | 22.12% | 19.88% |
+| 2 | 33.18% | 32.37% |
+| 3 | 25.41% | 26.98% |
+| 4 | 10.70% | 12.39% |
+| 5 | 2.47% | 3.13% |
+| 6 | 0.29% | 0.40% |
+| 7 | 0.01% | 0.02% |
+
+## Parte 1: 19 contra 20, control ideal de tierras enderezadas
+
+Este control elimina el tipo de tierra para aislar su cantidad. No propone jugar cero bridges. Lands on curve es ≥3/4/5 tierras en mesa al terminar T3/T4/T5. Screw es ≤2 en mesa al terminar T4, condicionado a haber conservado mano. Los land drops usan todos los intentos como denominador, incluidos fallos de política.
+
+| Base | Modo | Curve T3 | Curve T4 | Curve T5 | Screw T4 entre keeps | Fallo mulligan |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 19 | OTP | 78.05% | 50.95% | 28.96% | 14.33% | 0.61% |
+| 19 | OTD | 85.15% | 61.85% | 38.98% | 9.46% | 0.61% |
+| 20 | OTP | 80.83% | 55.49% | 33.49% | 12.22% | 0.37% |
+| 20 | OTD | 87.46% | 66.32% | 44.17% | 7.82% | 0.37% |
+
+20 mejora indicadores de cantidad de tierras en este control. Eso no establece que sea mejor para Affinity: no hay motor de robo ni utilidad de las cartas que reemplaza. El JSON conserva también la cantidad de no tierras vistas y un proxy explícito de ≥6 tierras vistas a T5; no llamarlo derrota por flood.
+
+## Parte 2: bridges frente a tierras artefacto enderezadas
+
+Se mantienen ambos totales como control, para no cerrar 19/20 por adelantado. Las dos políticas son priorizar siempre enderezadas, o abrir con bridge T1 y después priorizar enderezadas. No usan información futura ni colores. La selección del fondo es común y prefiere conservar enderezadas.
+
+Capacidad es el maná disponible tras jugar tierra y antes de spells. Una tierra que acaba de entrar girada cuenta como tierra en mesa pero no como maná utilizable en ese turno. No es maná gastado ni desperdiciado.
+
+| Tierras | Bridges | Enderezadas | Modo | Política | ≥1 maná T1 | ≥2 manás T2 | ≥3 manás T3 | Capacidad acumulada media T1–T3 |
+| ---: | ---: | ---: | --- | --- | ---: | ---: | ---: | ---: |
+| 19 | 9 | 10 | OTP | untapped_first | 86.20% | 54.90% | 30.31% | 4.696 |
+| 19 | 9 | 10 | OTP | bridge_t1_then_untapped | 19.00% | 88.69% | 51.72% | 4.576 |
+| 19 | 9 | 10 | OTD | untapped_first | 88.69% | 60.75% | 35.08% | 4.827 |
+| 19 | 9 | 10 | OTD | bridge_t1_then_untapped | 15.81% | 90.75% | 59.94% | 4.647 |
+| 19 | 10 | 9 | OTP | untapped_first | 82.13% | 48.18% | 25.40% | 4.539 |
+| 19 | 10 | 9 | OTP | bridge_t1_then_untapped | 14.59% | 85.06% | 46.27% | 4.441 |
+| 19 | 10 | 9 | OTD | untapped_first | 85.06% | 53.86% | 29.30% | 4.664 |
+| 19 | 10 | 9 | OTD | bridge_t1_then_untapped | 11.87% | 87.54% | 54.01% | 4.516 |
+| 19 | 11 | 8 | OTP | untapped_first | 77.30% | 41.30% | 20.84% | 4.376 |
+| 19 | 11 | 8 | OTP | bridge_t1_then_untapped | 10.87% | 80.64% | 40.42% | 4.301 |
+| 19 | 11 | 8 | OTD | untapped_first | 80.64% | 46.60% | 23.87% | 4.493 |
+| 19 | 11 | 8 | OTD | bridge_t1_then_untapped | 8.64% | 83.52% | 47.48% | 4.378 |
+| 19 | 12 | 7 | OTP | untapped_first | 71.64% | 34.38% | 16.71% | 4.209 |
+| 19 | 12 | 7 | OTP | bridge_t1_then_untapped | 7.80% | 75.30% | 34.24% | 4.155 |
+| 19 | 12 | 7 | OTD | untapped_first | 75.30% | 39.10% | 18.90% | 4.315 |
+| 19 | 12 | 7 | OTD | bridge_t1_then_untapped | 6.05% | 78.55% | 40.45% | 4.232 |
+| 19 | 13 | 6 | OTP | untapped_first | 65.05% | 27.54% | 13.05% | 4.038 |
+| 19 | 13 | 6 | OTP | bridge_t1_then_untapped | 5.32% | 68.93% | 27.89% | 4.003 |
+| 19 | 13 | 6 | OTD | untapped_first | 68.93% | 31.52% | 14.49% | 4.131 |
+| 19 | 13 | 6 | OTD | bridge_t1_then_untapped | 4.03% | 72.45% | 33.07% | 4.077 |
+| 19 | 14 | 5 | OTP | untapped_first | 57.43% | 20.95% | 9.89% | 3.864 |
+| 19 | 14 | 5 | OTP | bridge_t1_then_untapped | 3.38% | 61.39% | 21.53% | 3.845 |
+| 19 | 14 | 5 | OTD | untapped_first | 61.39% | 24.06% | 10.72% | 3.943 |
+| 19 | 14 | 5 | OTD | bridge_t1_then_untapped | 2.50% | 65.04% | 25.55% | 3.913 |
+| 20 | 9 | 11 | OTP | untapped_first | 88.42% | 59.73% | 34.94% | 4.820 |
+| 20 | 9 | 11 | OTP | bridge_t1_then_untapped | 20.62% | 90.75% | 56.88% | 4.671 |
+| 20 | 9 | 11 | OTD | untapped_first | 90.75% | 65.69% | 40.37% | 4.957 |
+| 20 | 9 | 11 | OTD | bridge_t1_then_untapped | 17.16% | 92.63% | 65.19% | 4.739 |
+| 20 | 10 | 10 | OTP | untapped_first | 84.94% | 53.44% | 29.88% | 4.671 |
+| 20 | 10 | 10 | OTP | bridge_t1_then_untapped | 16.17% | 87.71% | 51.81% | 4.546 |
+| 20 | 10 | 10 | OTD | untapped_first | 87.71% | 59.37% | 34.50% | 4.805 |
+| 20 | 10 | 10 | OTD | bridge_t1_then_untapped | 13.15% | 90.01% | 59.81% | 4.618 |
+| 20 | 11 | 9 | OTP | untapped_first | 80.82% | 46.91% | 25.08% | 4.517 |
+| 20 | 11 | 9 | OTP | bridge_t1_then_untapped | 12.38% | 84.01% | 46.27% | 4.415 |
+| 20 | 11 | 9 | OTD | untapped_first | 84.01% | 52.62% | 28.86% | 4.644 |
+| 20 | 11 | 9 | OTD | bridge_t1_then_untapped | 9.84% | 86.71% | 53.79% | 4.492 |
+| 20 | 12 | 8 | OTP | untapped_first | 75.96% | 40.23% | 20.62% | 4.357 |
+| 20 | 12 | 8 | OTP | bridge_t1_then_untapped | 9.20% | 79.53% | 40.36% | 4.280 |
+| 20 | 12 | 8 | OTD | untapped_first | 79.53% | 45.52% | 23.55% | 4.475 |
+| 20 | 12 | 8 | OTD | bridge_t1_then_untapped | 7.14% | 82.62% | 47.21% | 4.359 |
+| 20 | 13 | 7 | OTP | untapped_first | 70.30% | 33.51% | 16.58% | 4.193 |
+| 20 | 13 | 7 | OTP | bridge_t1_then_untapped | 6.59% | 74.17% | 34.15% | 4.138 |
+| 20 | 13 | 7 | OTD | untapped_first | 74.17% | 38.20% | 18.70% | 4.300 |
+| 20 | 13 | 7 | OTD | bridge_t1_then_untapped | 4.98% | 77.60% | 40.17% | 4.216 |
+| 20 | 14 | 6 | OTP | untapped_first | 63.75% | 26.88% | 12.98% | 4.025 |
+| 20 | 14 | 6 | OTP | bridge_t1_then_untapped | 4.48% | 67.81% | 27.78% | 3.990 |
+| 20 | 14 | 6 | OTD | untapped_first | 67.81% | 30.81% | 14.38% | 4.119 |
+| 20 | 14 | 6 | OTD | bridge_t1_then_untapped | 3.31% | 71.48% | 32.80% | 4.065 |
+
+## Lectura correcta
+
+- Esta etapa cuantifica el coste de velocidad de 9–14 bridges. Al omitir fixing y resiliencia, entrar girado pierde sus compensaciones; no se puede descubrir un equilibrio interior completo con esta capa sola.
+- Las políticas pueden repartir capacidad de manera distinta entre T1 y T2. Más capacidad en un turno no prueba que se lanzaran más hechizos.
+- Una elección de 19/20 y ratio queda provisional hasta añadir colores, Boulder y robos. No trasladar automáticamente el resultado Grixis del video.
+- All four colours by T3 y Needed colours met quedan para la etapa de composición y spells. No hay resultados simulados de esos indicadores aquí.
+- Los CSV y JSON separan OTP/OTD, mantienen denominadores y guardan trazas. Los fallos del mulligan no se excluyen silenciosamente.
+
+Controles de depuración Monte Carlo: 2184/2184 dentro de seis errores estándar + 1/N. No es una banda del 95% ni una selección de ganadores.

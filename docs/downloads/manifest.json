@@ -1,0 +1,45 @@
+{
+  "data_version": "1.0",
+  "files": {
+    "structural-results.json": {
+      "source": "results/structural_stages/results.json",
+      "sha256": "5ecaad7d57bc721b214385712a559b68722d7edf4b486d50cd1a78bfa083e7b2"
+    },
+    "structural-metrics.csv": {
+      "source": "results/structural_stages/metrics.csv",
+      "sha256": "78d952efafecc192b1364c73964b03dd004cd8d1c838f00a7b0fccbaa63fe882"
+    },
+    "opening-pilot.json": {
+      "source": "results/pilot_01/results.json",
+      "sha256": "6a22b8b8691e59b271ed7d0dbf1c8cd7c7b87fe7bc39fb32983d2099ea17a35b"
+    },
+    "opening-metrics.csv": {
+      "source": "results/pilot_01/metrics.csv",
+      "sha256": "35a6a7552eae89c95d538d06b11af7084e00f3eccddd5a91b92ef9cd72f4535a"
+    },
+    "search-manifest.json": {
+      "source": "results/search_space/manifest.json",
+      "sha256": "e0df08f5aa11fb913f6e46847797f8f9437c88c214238642ee30d4652d953a17"
+    },
+    "search-profiles.csv": {
+      "source": "results/search_space/exact_opening_profiles.csv",
+      "sha256": "da7832c3efa65cb5827446552dc552367286e1bfe456c83257e51cccf74305f1"
+    },
+    "plan.md": {
+      "source": "PLAN_ANALISIS.md",
+      "sha256": "cda6817b08a0513bdd46015e588d163512ec651336a29761e4f0b5c41a0e1aec"
+    },
+    "video-analysis.md": {
+      "source": "ANALISIS_VIDEO_HYPERGEOMANCER.md",
+      "sha256": "94732a40e7904e2101d38667ad5c8094fcc753e66cf6658d4a0b5bcedecbcdf6"
+    },
+    "structural-report.md": {
+      "source": "results/structural_stages/informe.md",
+      "sha256": "f6cff417344c88d821956dcb9dd0bf8dbd9f0833c5696dce4257a2b3585259b6"
+    },
+    "message.txt": {
+      "source": "message.txt",
+      "sha256": "eca1a54eda676517e4ff999a260d3cd738023e03c2c878cc97fcf53d891bc897"
+    }
+  }
+}

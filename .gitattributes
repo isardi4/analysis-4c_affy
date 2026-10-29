@@ -1,0 +1,4 @@
+* text=auto eol=lf
+# Keep original CSV and supplied transcript bytes for download hash checks.
+*.csv -text whitespace=trailing-space,space-before-tab,cr-at-eol
+message.txt -text whitespace=trailing-space,space-before-tab,cr-at-eol

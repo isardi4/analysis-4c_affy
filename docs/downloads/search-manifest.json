@@ -1,0 +1,189 @@
+{
+  "status": "Active bounded domain counted; exact opening profiles only; no new turn/hate simulation",
+  "config": {
+    "stage": "02_complete_mana_domain_and_exact_opening_profiles",
+    "land_totals": [
+      19,
+      20
+    ],
+    "nonbasic_copy_limit": 4,
+    "maximum_basic_lands_total": 0,
+    "bridge_range": [
+      9,
+      14
+    ],
+    "bridge_bands": {
+      "principal": [
+        9,
+        12
+      ],
+      "exploratorio": [
+        13,
+        14
+      ]
+    },
+    "boulder_counts": [
+      4,
+      3,
+      2,
+      1,
+      0
+    ],
+    "scopes": {
+      "wubr_core": {
+        "role": "Active domain: W/U/B/R artifact lands and six bridge pairs, 9–14 bridges total and no basics. All distributions inside these bounds are searchable.",
+        "bridges": [
+          "Razortide Bridge",
+          "Mistvault Bridge",
+          "Drossforge Bridge",
+          "Rustvale Bridge",
+          "Goldmire Bridge",
+          "Silverbluff Bridge"
+        ],
+        "ordinary_artifact_lands": [
+          "Ancient Den",
+          "Seat of the Synod",
+          "Vault of Whispers",
+          "Great Furnace"
+        ],
+        "citadel": [
+          "Darksteel Citadel"
+        ],
+        "basics": []
+      }
+    },
+    "restrictions": [
+      "Every named land ranges from zero to four, including Citadel. Total bridges are 9–14 inclusive. No fixed Vault, Synod, Furnace or Citadel count is imposed.",
+      "Exactly 19 or 20 lands. Basic lands and their Wildfire analysis are excluded at the player's request.",
+      "The active pool is the W/U/B/R subset formerly counted as 32,205,701 with optional basics. The green extension is inactive, not proven dominated; this is a declared practical scope.",
+      "Other lands such as tapped nonartifact duals, fetches or utility lands are outside this declared domain unless later added explicitly.",
+      "Counts and opening metrics do not certify card legality or full turn/hate behavior. Verify Oracle and current legality before the turn simulator.",
+      "Grouping is exact only for metrics that depend exclusively on the grouping variables. Never merge two bases for color sequencing or hate based solely on these opening groups."
+    ],
+    "search_protocol": [
+      "Represent and count every base exactly using bounded compositions and generating functions.",
+      "Evaluate exact opening controls for every base through proven-equivalent aggregate profiles; save profile multiplicities and coverage totals.",
+      "Add per-card color, pair and vulnerability information for the turn model. Discard branches only with a valid bound or explicit infeasibility certificate for the declared objectives.",
+      "Stratify Monte Carlo by bridge count 9–14; 9–12 is the principal band and 13–14 exploratory. Do not discard 13–14 simply for entering tapped.",
+      "Keep uncertainty-aware finalists and confirm with new seeds; state exactly what was counted, evaluated analytically, simulated or pruned."
+    ]
+  },
+  "counts": {
+    "wubr_core": {
+      "19": {
+        "all_bases": 2504577,
+        "bands": {
+          "principal": 2010441,
+          "exploratorio": 494136
+        },
+        "profiles": 30
+      },
+      "20": {
+        "all_bases": 2912826,
+        "bands": {
+          "principal": 2204286,
+          "exploratorio": 708540
+        },
+        "profiles": 30
+      }
+    }
+  },
+  "per_bridge_counts": [
+    {
+      "scope": "wubr_core",
+      "lands": 19,
+      "bridges": 9,
+      "untapped": 10,
+      "distinct_bases": 474726
+    },
+    {
+      "scope": "wubr_core",
+      "lands": 19,
+      "bridges": 10,
+      "untapped": 9,
+      "distinct_bases": 549690
+    },
+    {
+      "scope": "wubr_core",
+      "lands": 19,
+      "bridges": 11,
+      "untapped": 8,
+      "distinct_bases": 539520
+    },
+    {
+      "scope": "wubr_core",
+      "lands": 19,
+      "bridges": 12,
+      "untapped": 7,
+      "distinct_bases": 446505
+    },
+    {
+      "scope": "wubr_core",
+      "lands": 19,
+      "bridges": 13,
+      "untapped": 6,
+      "distinct_bases": 311910
+    },
+    {
+      "scope": "wubr_core",
+      "lands": 19,
+      "bridges": 14,
+      "untapped": 5,
+      "distinct_bases": 182226
+    },
+    {
+      "scope": "wubr_core",
+      "lands": 20,
+      "bridges": 9,
+      "untapped": 11,
+      "distinct_bases": 454790
+    },
+    {
+      "scope": "wubr_core",
+      "lands": 20,
+      "bridges": 10,
+      "untapped": 10,
+      "distinct_bases": 573786
+    },
+    {
+      "scope": "wubr_core",
+      "lands": 20,
+      "bridges": 11,
+      "untapped": 9,
+      "distinct_bases": 615390
+    },
+    {
+      "scope": "wubr_core",
+      "lands": 20,
+      "bridges": 12,
+      "untapped": 8,
+      "distinct_bases": 560320
+    },
+    {
+      "scope": "wubr_core",
+      "lands": 20,
+      "bridges": 13,
+      "untapped": 7,
+      "distinct_bases": 429930
+    },
+    {
+      "scope": "wubr_core",
+      "lands": 20,
+      "bridges": 14,
+      "untapped": 6,
+      "distinct_bases": 278610
+    }
+  ],
+  "scope_totals": {
+    "wubr_core": 5417403
+  },
+  "base_boulder_pairs": {
+    "wubr_core": 27087015
+  },
+  "source_sha256": {
+    "configs/mana_search_space.json": "754b4815654909a5c3fc85b544caa1fa298c65c2d461df20909fa6fbb3c6614d",
+    "data/opening_catalog.json": "b11308496127ac9af4ecd6040310f07870a9ab02720b496be7c0acfd11f17ef2",
+    "src/mana_search_space.py": "14193740287054f14e0837ac84eba0d5779c91936273654fd296a636f3c818c9",
+    "src/opening_pilot.py": "95db8c2da90a8d17cbd61bb62e05dd0bcb16e87b047e6a0df121a0c439e616aa"
+  }
+}

@@ -1,0 +1,46 @@
+name: Publish mana report
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Validate analytical models
+        run: python3 -m unittest discover -s tests -v
+      - name: Package the report
+        run: python3 scripts/build_report.py
+      - name: Validate report and numerical provenance
+        run: python3 scripts/validate_report.py
+      - name: Check JavaScript
+        run: node --check docs/lab.js
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload report
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
