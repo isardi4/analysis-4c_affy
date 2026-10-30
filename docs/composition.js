@@ -2,7 +2,7 @@
 globalThis.AffinityComposition = (() => {
   'use strict';
   const colors = ['W', 'U', 'B', 'R'];
-  const counts = globalThis.AFFINITY_DATA?.structural?.config?.part_2?.bridge_counts || [8,9,10,11,12];
+  const counts = globalThis.AFFINITY_DATA?.structural?.config?.part_2?.bridge_counts || [6,7,8,9,10,11,12];
   const bridges = [
     ['Razortide Bridge', [1,1,0,0]], ['Mistvault Bridge', [0,1,1,0]],
     ['Drossforge Bridge', [0,0,1,1]], ['Rustvale Bridge', [1,0,0,1]],

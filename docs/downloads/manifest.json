@@ -3,11 +3,11 @@
   "files": {
     "structural-results.json": {
       "source": "results/structural_stages/results.json",
-      "sha256": "b33bf15212964dfc0988762c290ba259a39ac4484aa0386ef0a8ab8b41e0357f"
+      "sha256": "e1b210f0ed2033f5b2a41ca6c4545b42cf36f24c1daa1748a1a9a29e35807bef"
     },
     "structural-metrics.csv": {
       "source": "results/structural_stages/metrics.csv",
-      "sha256": "6b847a829cc99ecd1766eb5ca99740091fabca63e1f53b2250c8f8da1dbc61f0"
+      "sha256": "42c70b81b7b4f19da9dfd8824cc0a51235cb4dec02613468269900c9a7b1734b"
     },
     "opening-pilot.json": {
       "source": "results/pilot_01/results.json",
@@ -19,15 +19,15 @@
     },
     "search-manifest.json": {
       "source": "results/search_space/manifest.json",
-      "sha256": "cfde3262201ed34ab6913b9fba78f71a4adf83cd98cdbfdb66b14f7e95db08b5"
+      "sha256": "75fa2a6a271767c06cf9a2116832e264fb9978cc958da71ba8535848f4105acc"
     },
     "search-profiles.csv": {
       "source": "results/search_space/exact_opening_profiles.csv",
-      "sha256": "b01a9b0ba72d959ace3a697d69a9608b441bb22bc2a4b58d76b5fd8dfbcccb4d"
+      "sha256": "5cbbe79aa12750e67c9a498dd00cef407003b768b91c8ab46c6248282923128b"
     },
     "plan.md": {
       "source": "PLAN_ANALISIS.md",
-      "sha256": "e3e5b9b96a2152486fba42cf8c504411b037f8d0ef70303f6c92d44390f2c6cd"
+      "sha256": "9a5c9966ac7e1e1daed4518e763574db387e72c9f72683180426dbf1dc685f4e"
     },
     "video-analysis.md": {
       "source": "ANALISIS_VIDEO_HYPERGEOMANCER.md",
@@ -35,7 +35,7 @@
     },
     "structural-report.md": {
       "source": "results/structural_stages/informe.md",
-      "sha256": "e3e72f9c246fba5757379144610b64a4687fd230628720e819a15aa6eff34d3d"
+      "sha256": "87df34f7d3e7160590bd3de38b51251fbca94799b04102dd683e139596dc303b"
     },
     "message.txt": {
       "source": "message.txt",
@@ -43,15 +43,27 @@
     },
     "color-results.json": {
       "source": "results/color_bridges/results.json",
-      "sha256": "369985690a452665dea0b4ec2f71ed25c70276fb5cc1f055be6b358d09c2c7a3"
+      "sha256": "d2c41ad3c2f4481ed3cd536a9fd312c1e3738e1671419b5df076217731a8b00c"
     },
     "color-metrics.csv": {
       "source": "results/color_bridges/metrics.csv",
-      "sha256": "1bce0353b09ed8b115578827a2f842458732f4f521335cdb0a56aca548a8a132"
+      "sha256": "0d987b58a8ce277c394be86f4787c9d5cdce2b9398896e832373de77ac77fd9f"
     },
     "color-report.md": {
       "source": "results/color_bridges/informe.md",
-      "sha256": "bebef29a39ced9b751d2185ae57bcc4bc45c339ab0268bea6f64bc9b5acdeed7"
+      "sha256": "2350401c1e573824c4ffe4a579ec2d36240ec5826b4821aeb33d0d8c78bd5477"
+    },
+    "boulder-hate-results.json": {
+      "source": "results/boulder_hate/results.json",
+      "sha256": "be187c985ecdbe276fdfb07970115aa5c308da2fbc2d2f1262c02c84a73e1cc2"
+    },
+    "boulder-hate-metrics.csv": {
+      "source": "results/boulder_hate/metrics.csv",
+      "sha256": "ff04fd64921d47f42b7564cef1264ad7adc0a665dff396989b0f5d2b1d0fa95c"
+    },
+    "boulder-hate-report.md": {
+      "source": "results/boulder_hate/informe.md",
+      "sha256": "f84e843f2aa3381bb3193108c54903538074047a2b8720e5824231afd31a944b"
     }
   }
 }

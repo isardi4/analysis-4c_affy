@@ -395,10 +395,17 @@ class Game:
                 return True
         return False
 
+    def before_turn(self, mode):
+        """Extension point for an opponent turn; baseline has no interaction."""
+
+    def end_turn(self, snapshot):
+        """Extension point for current-board diagnostics, without changing play."""
+
     def play(self, mode, horizon=5):
         for turn in range(1, horizon + 1):
             self.turn = turn
             self.land_used = False
+            self.before_turn(mode)
             for p in self.board:
                 p.tapped = False
             if turn > 1 or mode == 'OTD':
@@ -425,6 +432,7 @@ class Game:
             self.turns.append({'turn': turn, 'lands': lands, 'extra_draws': self.extra_draws,
                                'spells': self.development_count - before, 'local': local,
                                'artifacts': self.artifacts(), 'threats': sum(p.name in THREATS for p in self.board)})
+            self.end_turn(self.turns[-1])
         f = self.first
         for t in (2, 3, 4):
             self.metrics[f'all4_t{t}'] = f.get('all4', 99) <= t

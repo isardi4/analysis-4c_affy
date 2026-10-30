@@ -1,24 +1,34 @@
 # Plan de análisis de maná: 4c Affinity
 
-Fecha: 2026-10-29. Versión: 10. Secuencia activa: primero 19/20 tierras; después ratio bridges/enderezadas; recién después composición de colores. Ya hay resultados estructurales sin spells. Se agregó el goldfish de cinco prioridades de color para cerrar el ratio; la búsqueda de composición y el hate siguen pendientes. No se eligió una composición final.
+Fecha: 2026-10-29. Versión: 11. Secuencia activa: primero 19/20 tierras; después ratio bridges/enderezadas; recién después composición de colores. Ya hay resultados estructurales sin spells. Se agregó el goldfish de cinco prioridades de color para cerrar el ratio; la composición final sigue pendiente y ya hay un piloto condicional de hate. No se eligió una composición final.
+
+## Boulder y hate: ejecución activa
+
+El jugador acota Boulder a **3 y 4**, y amplía bridges a **6–12**. Perfiles predefinidos ya incluía cuatro Boulder; el control estructural y Composición a medida no. Se agrega la pestaña **Boulder y hate** para distinguir esas capas.
+
+Se comparan las siete bases Equilibrado, 3/4 Boulder (el hueco lo ocupa una tercera Nihil Spellbomb), 0/2 Citadel, OTP/OTD y seis escenarios: sin hate, Vandalblast T2 rival, Masked Vandal T2 rival con criatura en cementerio, Dust to Dust T3 rival con dos objetivos, Gorilla sin remover con presupuestos 2/3/4 en T2–T4, y Vandalblast sobrecargado T5 rival. Son 336 celdas × 2.000 = 672.000 intentos hasta T6. Las respuestas del jugador y combate quedan fuera de esta primera prueba de exposición y recuperación.
+
+El control de frecuencia q empieza en cero y representa una hipótesis del usuario para UN escenario: (1−q) sin hate + q con ese escenario. No se infieren frecuencias del metajuego ni tasas de victoria. Los porcentajes del motor son capacidad de pagar sus costes por separado, no una secuencia simultánea. Se vuelve a medir acceso en cada turno después del ataque, para no reutilizar accesos anteriores como prueba de resistencia.
+
+[Informe detallado](results/boulder_hate/informe.md), [datos y trazas](results/boulder_hate/results.json), [métricas](results/boulder_hate/metrics.csv). Los resultados de los 35 perfiles sin interacción se confirman con 700.000 partidas y su piloto tiene 140.000; son muestras separadas del piloto de hate. Las cantidades 0/1/2 Boulder de propuestas o archivos históricos no forman parte del análisis activo.
 
 ## Rango activo y separación de vistas
 
-Se recalcularon 8, 9, 10, 11 y 12 bridges. El goldfish tiene 25 bases predefinidas × OTP/OTD: 100.000 intentos piloto y 500.000 de confirmación independiente. El control estructural tiene 44 celdas, 88.000 trayectorias y 1.848 comprobaciones satisfactorias. Las 40 celdas de colores y 36 estructurales que se superponen con la versión anterior son idénticas, incluidas métricas, medias y trazas. Ver [registro de comparación](results/color_bridges/range_update_check.json).
+Se recalcularon 6, 7, 8, 9, 10, 11 y 12 bridges. El goldfish tiene 35 bases predefinidas × OTP/OTD: 140.000 intentos piloto y 700.000 de confirmación independiente. El control estructural tiene 60 celdas, 120.000 trayectorias y 2.520 comprobaciones satisfactorias. Las 50 celdas de colores y 44 estructurales que se superponen con la versión anterior son idénticas, incluidas métricas, medias y trazas. Ver [registro de comparación](results/color_bridges/range_update_check.json).
 
-El HTML separa **Composición a medida** (pesos libres y base orientativa, sin partidas simuladas) de **Perfiles predefinidos** (Equilibrado y cuatro prioridades, con resultados Monte Carlo). Ambas vistas y el control estructural usan 8–12 bridges. El explorador conserva 10 como valor inicial; la recomendación de los perfiles se calcula de los resultados y no impone ese valor al usuario.
+El HTML separa **Composición a medida** (pesos libres y base orientativa, sin partidas simuladas) de **Perfiles predefinidos** (Equilibrado y cuatro prioridades, con resultados Monte Carlo). Ambas vistas y el control estructural usan 6–12 bridges. El explorador conserva 10 como valor inicial; la recomendación de los perfiles se calcula de los resultados y no impone ese valor al usuario.
 
 ## Composición: pesos independientes W/U/B/R
 
-El jugador quiere poder bajar el peso de cualquier color, o de varios simultáneamente. El HTML agrega un explorador con cuatro controles 0–1 y ratio 8–12 (por defecto 10 bridges + 9 enderezadas). No hay preferencia fija por U/B en los desempates de este nuevo generador. Se mantienen 19 tierras, cuatro Boulder, máximo cuatro copias, sin básicas ni Citadel.
+El jugador quiere poder bajar el peso de cualquier color, o de varios simultáneamente. El HTML agrega un explorador con cuatro controles 0–1 y ratio 6–12 (por defecto 10 bridges + 9 enderezadas). No hay preferencia fija por U/B en los desempates de este nuevo generador. Se mantienen 19 tierras, cuatro Boulder, máximo cuatro copias, sin básicas ni Citadel.
 
 La búsqueda exacta del objetivo analítico combina probabilidades hipergeométricas naturales en nueve cartas con pesos relativos. Entre empates usa cobertura ponderada de enderezadas en siete, y después un orden estable. Se muestran una base representativa, fuentes por color y su diferencia frente a todos los pesos en 1, más exportación JSON. Los porcentajes son de cartas vistas sin mulligan; no equivalen a acceso operativo por turno. El archivo personalizado queda marcado sin simulación de partidas. El próximo cálculo debe simular candidatos elegidos con estos controles y medir el coste de postergar cada color; los gráficos Monte Carlo actuales no se recalculan al moverlos.
 
 ## Actualización: colores tempranos para decidir el ratio
 
-Se autorizó ejecutar y publicar el cruce de 8–12 bridges con azul, blanco, negro, rojo temprano y equilibrado, manteniendo 19 tierras y cuatro Boulder. El piloto inicial usa 2.000 intentos por celda (100.000 en total); la confirmación independiente usa 10.000 (500.000). Siempre OTP/OTD separados. El informe y la recomendación calculada están en [results/color_bridges/informe.md](results/color_bridges/informe.md).
+Se autorizó ejecutar y publicar el cruce de 6–12 bridges con azul, blanco, negro, rojo temprano y equilibrado, manteniendo 19 tierras y cuatro Boulder. El piloto inicial usa 2.000 intentos por celda (140.000 en total); la confirmación independiente usa 10.000 (700.000). Siempre OTP/OTD separados. El informe y la recomendación calculada están en [results/color_bridges/informe.md](results/color_bridges/informe.md).
 
-Se seleccionan 25 bases representativas con una función explícita de fuentes naturales, sin presentar este estudio como búsqueda exhaustiva de composiciones. Se usa un mismo piloto con pagos, scry, afinidad, robos y rebotes; no hay interacción. La decisión de trabajo maximiza desarrollo T2–T3 en el perfil equilibrado, con igual peso OTP/OTD; se conservan acceso a cuatro colores y amenazas como indicadores separados. La composición concreta se optimizará después y puede llevar a revisar el ratio. Citadel queda para ese cruce con resistencia; este experimento sin rival fija cero copias.
+Se seleccionan 35 bases representativas con una función explícita de fuentes naturales, sin presentar este estudio como búsqueda exhaustiva de composiciones. Se usa un mismo piloto con pagos, scry, afinidad, robos y rebotes; no hay interacción. La decisión de trabajo maximiza desarrollo T2–T3 en el perfil equilibrado, con igual peso OTP/OTD; se conservan acceso a cuatro colores y amenazas como indicadores separados. La composición concreta se optimizará después y puede llevar a revisar el ratio. Citadel queda para ese cruce con resistencia; este experimento sin rival fija cero copias.
 
 ## 0. Orden de trabajo: antecedente de las partes 1 y 2
 
@@ -36,10 +46,12 @@ Ambos modos deciden el mulligan sobre siete; OTD roba al comenzar T1 y OTP no. E
 
 ### Parte 2: bridges frente a artefactos enderezados
 
-Comparar ratios con 8–12 bridges para el total elegido provisionalmente. Mantener el otro total como control de sensibilidad barato: son 10 ratios por modo, sin enumerar millones de listas.
+Comparar ratios con 6–12 bridges para el total elegido provisionalmente. Mantener el otro total como control de sensibilidad barato: son 14 ratios por modo, sin enumerar millones de listas.
 
 | Bridges | Enderezadas con 19 | Enderezadas con 20 |
 | ---: | ---: | ---: |
+| 6 | 13 | 14 |
+| 7 | 12 | 13 |
 | 8 | 11 | 12 |
 | 9 | 10 | 11 |
 | 10 | 9 | 10 |
@@ -48,7 +60,7 @@ Comparar ratios con 8–12 bridges para el total elegido provisionalmente. Mante
 
 Separar tierra en mesa de maná utilizable tras el land drop. Medir ≥1 maná T1, ≥2 T2, ≥3 T3, capacidad por turno y acumulada. Comparar controles de secuenciación: priorizar enderezadas; o abrir con bridge T1 y después priorizar enderezadas. No son un piloto estratégico definitivo.
 
-En esta capa solo hay tierras y robos naturales. No se simulan Boulder, scry, Cryogen, Thoughtcast, afinidad ni hate: los no terrenos son marcadores inertes. Al omitir fixing y resistencia se quitan las compensaciones de los bridges; medimos el coste de velocidad, no el equilibrio final. Que menos bridges sea más rápido no demuestra que esa sea la mejor construcción.
+En esta capa solo hay tierras y robos naturales. En el control estructural no se simulan Boulder, scry, Cryogen, Thoughtcast, afinidad ni hate: los no terrenos son marcadores inertes. Al omitir fixing y resistencia se quitan las compensaciones de los bridges; medimos el coste de velocidad, no el equilibrio final. Que menos bridges sea más rápido no demuestra que esa sea la mejor construcción.
 
 ### Parte 3: composición y validación
 
@@ -58,8 +70,8 @@ Después estudiar parejas de bridges, Vault/Synod/Furnace/Den/Citadel y Boulder,
 
 - Configuración: `configs/structural_stages.json`; implementación: `src/structural_stages.py`.
 - Distribución exacta de estados con London, mínimo de dos tierras, piso de cuatro propuesto y fondo documentado; robo OTP/OTD y entrada girada.
-- 44 celdas entre ambas partes y las dos políticas. 2.000 trayectorias de control por celda: 88.000 en total, con azar compartido. No son partidas completas de Affinity.
-- 37 pruebas Python y 6 JavaScript; 1.848 comprobaciones Monte Carlo dentro de la tolerancia frente a resultados exactos.
+- 60 celdas entre ambas partes y las dos políticas. 2.000 trayectorias de control por celda: 120.000 en total, con azar compartido. No son partidas completas de Affinity.
+- 49 pruebas Python y 6 JavaScript; 2.520 comprobaciones Monte Carlo dentro de la tolerancia frente a resultados exactos.
 - [Informe](results/structural_stages/informe.md), [CSV](results/structural_stages/metrics.csv), [JSON con parámetros y trazas](results/structural_stages/results.json).
 
 Los porcentajes principales son analíticos; el piloto Monte Carlo valida la implementación. No fue necesaria una corrida de 5M para resolver esta capa estructural.
@@ -134,13 +146,13 @@ Antes del motor: fijar textos Oracle, fecha, fuentes y legalidad de las cartas q
 | Secuencia | Referencia orientativa: T1 Boulder, T2 Cryogen Relic, T3 Refurbished Familiar o Utrom Monitor. Priorizar acceso al maná; el orden real depende de la mano y del matchup. |
 | Orden del trabajo | Primero sin interacción rival; después escenarios acotados de hate. |
 | Cartas | Sin restricciones de presupuesto. En esta etapa, solo tierras artefacto enderezadas y bridges del catálogo W/U/B/R; no analizar básicas. |
-| Amplitud de la búsqueda | Todas las distribuciones del catálogo activo con 8–12 bridges; no limitarse a cambios de una carta. Las cantidades individuales de Vault/Synod/Furnace/Citadel y de cada bridge siguen libres entre 0 y 4. |
-| Recorte posterior del jugador | Excluir básicas y su análisis de Wildfire. Comparar de 8 a 12 bridges, según el rango actualizado por el jugador. |
+| Amplitud de la búsqueda | Todas las distribuciones del catálogo activo con 6–12 bridges; no limitarse a cambios de una carta. Las cantidades individuales de Vault/Synod/Furnace/Citadel y de cada bridge siguen libres entre 0 y 4. |
+| Recorte posterior del jugador | Excluir básicas y su análisis de Wildfire. Comparar de 6 a 12 bridges, según el rango actualizado por el jugador. |
 
 Propuestas operativas para implementar sin otra ronda de preguntas:
 
 - Horizonte inicial: T1–T6, con métricas de recuperación hasta dos turnos propios después del ataque. T6 cubre también el quinto robo natural de quien sale primero. Si quedan demasiadas partidas sin acceso al final, ampliar el horizonte antes de sacar conclusiones.
-- Cantidades: 3/4 Boulder en el estudio principal, 2 como control inicial y 1/0 como diagnósticos secundarios si aportan información. Informar claramente cuáles se probaron; no excluir una cantidad por intuición.
+- Cantidades activas: exclusivamente 3 y 4 Boulder, según el último ajuste del jugador.
 - Políticas: mínimo dos tierras obligatorio; comparar una política de desarrollo con una que favorezca Boulder solo entre manos que cumplan ese mínimo. No asumir que hay que hacer mulligan a toda mano sin Boulder.
 - Mulligan London: propuesta inicial de piso de cuatro cartas, con sensibilidad a pisos de tres y dos. Si al piso no existe mano conservable con dos tierras, registrar «sin mano admisible bajo esta política», contar el intento en el denominador y como fallo del objetivo operativo. No conservar una mano ilegal para la política, volver a muestrear gratis ni interpretar esto como una derrota según las reglas del juego. Los pisos son propuestas, no preferencias ya expresadas por el jugador.
 - Todas las composiciones mantienen 60 cartas y un máximo de cuatro copias de cada carta. Los reemplazos de hechizos se declaran como parte de la composición.
@@ -228,7 +240,7 @@ Política de referencia propuesta: conservar manos de 2–4 tierras; para manos 
 
 Al elegir el fondo, conservar al menos dos tierras y priorizar colores/entrada compatibles con la mano, una vía útil de robo/selección y una amenaza cuando haya espacio. Duplicados de Boulder y tierras excedentes se evalúan por utilidad. Documentar los desempates para poder reproducir cada decisión.
 
-La secuencia T1 Boulder → T2 Relic → T3 Familiar/Monitor es un objetivo observable, no una acción forzada. Si falta una pieza o la secuencia es impagable, la política debe elegir una alternativa legal. Comparar éxito de cada paso y de la secuencia completa, tanto sobre todas las partidas como condicionado a contar con las cartas. En el primer modelo no se gasta removal contra rivales ficticios; se mide si se podría reservar/pagar.
+La secuencia T1 Boulder → T2 Relic → T3 Familiar/Monitor es un objetivo observable, no una acción forzada. Si falta una pieza o la secuencia es impagable, la política debe elegir una alternativa legal. Comparar éxito de cada paso y de la secuencia completa, tanto sobre todas las partidas como condicionado a contar con las cartas. El piloto sin rival puede lanzar Blast al jugador, sin contarlo como desarrollo; no fuerza Dispatch sin objetivo rival.
 
 ## 7. Diseño de composiciones
 
@@ -240,7 +252,7 @@ Dominio activo, acordado tras acotar el universo anterior:
 - Catálogo W/U/B/R: seis bridges, cuatro tierras artefacto monocolor y Darksteel Citadel, cada carta entre 0 y 4 copias.
 - Sin cantidades mínimas de Vault, Synod, Furnace, Citadel ni de un bridge concreto. La distribución de colores sigue siendo una variable central.
 - El resto del mazo completa 60 cartas con los reemplazos explícitos de la sección siguiente.
-- Cantidades de Boulder 0–4 en el dominio analítico; priorizar 3/4 y control de 2 al validar el motor.
+- Cantidades activas de Boulder: exclusivamente 3 y 4, por indicación del jugador.
 
 Las 12 composiciones del primer piloto son controles de implementación, no el universo de construcción. Las bases sin bridges, solo bridges o con 15–20 bridges ya no están dentro de la búsqueda activa. Esta es una restricción del jugador, no una conclusión estadística sobre esas bases.
 
@@ -262,21 +274,21 @@ Configuración versionada: `configs/mana_search_space.json`.
 
 | Rango de bridges | Bases de 19 tierras | Bases de 20 tierras | Total |
 | --- | ---: | ---: | ---: |
-| 8–12: dominio completo activo | 2.357.556 | 2.508.606 | 4.866.162 |
+| 6–12: dominio completo activo | 2.679.306 | 2.757.246 | 5.436.552 |
 
-El rango activo reemplaza el barrido anterior de 9–14. El dominio previo de 32.205.701 también incluía básicas y otras cantidades de bridges; no es el alcance actual.
+El rango activo reemplaza los barridos anteriores de 9–14 y 8–12. El dominio previo de 32.205.701 también incluía básicas y otras cantidades de bridges; no es el alcance actual.
 
-Dentro de cada cantidad de bridges se comparan todas las distribuciones legales de los seis pares y de las cinco tierras enderezadas. No confundir «10 bridges» con una base concreta. Con 19 tierras, 8–12 bridges dejan 11–7 tierras enderezadas; con 20, dejan 12–8.
+Dentro de cada cantidad de bridges se comparan todas las distribuciones legales de los seis pares y de las cinco tierras enderezadas. No confundir «10 bridges» con una base concreta. Con 19 tierras, 6–12 bridges dejan 13–7 tierras enderezadas; con 20, dejan 14–8.
 
 ### Método de búsqueda y cobertura
 
 1. Contar exhaustivamente con programación dinámica y aplicar los límites durante la generación, sin generar primero millones de bases excluidas.
 2. Calcular controles exactos por grupos cuando su equivalencia esté demostrada para la métrica concreta. No agrupar bases de colores distintos como equivalentes para los turnos.
-3. Explorar el motor con estratos por cantidad de bridges, colores y Citadel; cubrir todas las cantidades entre 8 y 12.
+3. Explorar el motor con estratos por cantidad de bridges, colores y Citadel; cubrir todas las cantidades entre 6 y 12.
 4. Usar cotas válidas o imposibilidad para descartes certificados; si se prioriza por heurística o Monte Carlo, informarlo como exploración y comprobar muestras fuera de los candidatos elegidos.
 5. Confirmar alternativas con nuevas semillas y medir diferencias emparejadas. No declarar un óptimo global si no está certificado.
 
-Los 2.000 intentos son por celda del piloto, no una obligación de simular 2.000 partidas sobre cada una de las 4.866.162 bases antes de validar reglas. El alcance de los 5M se decidirá con el benchmark del motor de turnos y el reparto de muestras.
+Los 2.000 intentos son por celda del piloto, no una obligación de simular 2.000 partidas sobre cada una de las 5.436.552 bases antes de validar reglas. El alcance de los 5M se decidirá con el benchmark del motor de turnos y el reparto de muestras.
 
 El informe distingue bases representadas, evaluadas analíticamente, simuladas y descartadas con justificación. Mostrar una frontera de alternativas de rapidez/solidez, sin una nota única arbitraria.
 
@@ -284,13 +296,13 @@ El informe distingue bases representadas, evaluadas analíticamente, simuladas y
 
 Se propone un protocolo práctico, todavía no ejecutado en turnos:
 
-- Comenzar con 100 perfiles: 2 cantidades de tierras × 5 cantidades de bridges × 5 cantidades de Citadel × 2 cantidades principales de Boulder (3/4). El control con 2 Boulder amplía a 150; el dominio analítico de 0–4 Boulder ya tiene 250 perfiles. No son bases equivalentes para jugar: cada perfil contiene muchas distribuciones de colores.
+- Comenzar con 140 perfiles: 2 cantidades de tierras × 7 cantidades de bridges × 5 cantidades de Citadel × 2 cantidades principales de Boulder (3/4). El dominio activo queda acotado a 3/4 Boulder y tiene 140 perfiles exactos. No son bases equivalentes para jugar: cada perfil contiene muchas distribuciones de colores.
 - Dentro de cada perfil, calcular indicadores exactos de cartas vistas/fuentes antes de simular: por ejemplo, encontrar fuentes de azul/blanco y cobertura natural de colores. Estas métricas no incorporan aún tierras giradas, mulligans, pagos ni robos extra; no llamarlas acceso efectivo por turno.
 - Conservar varias distribuciones de colores según prioridades distintas, además de muestras no seleccionadas para control. Un objetivo inicial de 2–4 candidatas por perfil lleva a unas 240–480 listas, una escala similar al barrido del video. No imponer esa cantidad si la frontera de alternativas necesita más ni declararla exhaustiva en turnos.
 - Explorar vecinos de candidatos y revisar muestras de perfiles menos favorecidos. No fijar la distribución original de colores ni cerrar cantidades de tierras/Boulder antes de comprobar sus interacciones.
 - Concentrar las muestras grandes en finalistas y confirmarlos con nuevas semillas. Declarar el alcance de la selección y el riesgo de perder una base que el filtro analítico no priorice.
 
-Ejemplo de presupuesto total sin rival: 12 celdas × 2.000 partidas × play/draw para validar (48.000); 360 × 2.000 × play/draw para explorar (1.440.000); 60 × 10.000 × play/draw para refinar (1.200.000); 20 × 50.000 × play/draw para confirmar (2.000.000). Total ilustrativo: 4.688.000 partidas. Políticas adicionales y hate consumen presupuesto aparte o requieren redistribución. Es una propuesta de escala, no corridas realizadas ni promesa de tiempo de ejecución.
+Ejemplo de presupuesto total sin rival: 12 celdas × 2.000 partidas × play/draw para validar (48.000); 360 × 2.000 × play/draw para explorar (1.440.000); 60 × 10.000 × play/draw para refinar (1.200.000); 20 × 50.000 × play/draw para confirmar (2.000.000). Total ilustrativo: 4.6120.000 partidas. Políticas adicionales y hate consumen presupuesto aparte o requieren redistribución. Es una propuesta de escala, no corridas realizadas ni promesa de tiempo de ejecución.
 
 La simplificación copia la arquitectura del autor —goldfish acotado, heurísticas, trazas, métricas reutilizables y presupuesto total—, sin trasladar literalmente el tamaño de su universo ni asumir sus conclusiones para cuatro colores.
 
@@ -304,10 +316,8 @@ La referencia tiene 37 hechizos distintos de Boulder. El total de huecos para es
 | 19 | 3 | 38 | Agregar un hechizo |
 | 20 | 4 | 36 | Quitar un hechizo |
 | 20 | 3 | 37 | Cambiar un Boulder por una tierra |
-| 19 | 2 | 39 | Agregar dos hechizos |
-| 20 | 2 | 38 | Agregar un hechizo |
 
-Propuesta inicial de balanceo: para 20 tierras/4 Boulder, cortar una Nihil Spellbomb; para huecos libres al bajar Boulder, aumentar Nihil Spellbomb hasta cuatro, luego Myr Enforcer hasta cuatro y luego Glint Hawk hasta cuatro. En finalistas repetir con otra familia: cortar un Myr Enforcer para 20/4 y llenar huecos priorizando Myr, luego Hawk y después Spellbomb. Esto permite comparar incluso 1/0 Boulder sin cartas ficticias ni superar cuatro copias.
+Propuesta inicial de balanceo: para 20 tierras/4 Boulder, cortar una Nihil Spellbomb; para huecos libres al bajar Boulder, aumentar Nihil Spellbomb hasta cuatro, luego Myr Enforcer hasta cuatro y luego Glint Hawk hasta cuatro. En finalistas repetir con otra familia: cortar un Myr Enforcer para 20/4 y llenar huecos priorizando Myr, luego Hawk y después Spellbomb. El análisis activo compara exclusivamente tres y cuatro Boulder.
 
 Estos reemplazos son propuestas metodológicas modificables, no recomendaciones de construcción ni cambios neutrales. Spellbomb, Myr y Hawk tienen efectos distintos en robos, afinidad y desarrollo. Informar cada lista completa y comprobar que una conclusión no dependa solamente de la carta usada para llenar/quitar un hueco. La comparación 19/4 contra 20/3 mantiene intactos los otros 37 hechizos y es un control especialmente interpretable.
 
@@ -451,7 +461,7 @@ No presentar una composición como ganadora por diferencias menores que la incer
 ## 12. Próxima ejecución concreta
 
 1. Contrastar y guardar las 60 cartas de referencia y sus textos relevantes; mantener separada la incertidumbre de la fuente si no se puede obtener la exportación original.
-2. Usar el manifiesto exhaustivo `configs/mana_search_space.json`: 19/20 tierras, 8–12 bridges, ninguna básica y todas las distribuciones del catálogo W/U/B/R, cruzado con Boulder 0–4 y reemplazos explícitos. Las listas pequeñas siguen sirviendo para depurar el motor, pero no limitan la búsqueda de construcción.
+2. Usar el manifiesto exhaustivo `configs/mana_search_space.json`: 19/20 tierras, 6–12 bridges, ninguna básica y todas las distribuciones del catálogo W/U/B/R, cruzado con Boulder 3/4 y reemplazos explícitos. Las listas pequeñas siguen sirviendo para depurar el motor, pero no limitan la búsqueda de construcción.
 3. Implementar primero muestreo y mulligan, luego pagos/tierras/Boulder, después robo, afinidad y devoluciones. Validar cada interacción antes de usar sus resultados.
 4. Correr 2.000 partidas por celda sin rival y revisar trazas junto con controles exactos. Subir a 10.000 solo cuando el modelo sea coherente.
 5. Generar el primer informe con rapidez, cartas conservadas, desarrollo y fallos de maná. Todavía no atribuirle solidez simulada a una composición sin haber corrido el módulo de hate.
@@ -489,7 +499,7 @@ Próximo bloque pendiente: verificar el catálogo completo y construir estados/p
 
 ## 14. Dominio acotado ejecutado y referencia externa
 
-Se actualizó `src/mana_search_space.py` para aplicar los límites de bridges durante el conteo, la partición y la generación concreta. Se recalcularon 250 filas de perfiles exactos, cuyas multiplicidades cubren las 4.866.162 bases activas para los controles actuales: menos de dos tierras en siete, Boulder en siete y al menos dos tierras + Boulder + tierra enderezada en siete.
+Se actualizó `src/mana_search_space.py` para aplicar los límites de bridges durante el conteo, la partición y la generación concreta. Se recalcularon 140 filas de perfiles exactos, cuyas multiplicidades cubren las 5.436.552 bases activas para los controles actuales: menos de dos tierras en siete, Boulder en siete y al menos dos tierras + Boulder + tierra enderezada en siete.
 
 Pruebas acumuladas: 14 satisfactorias, incluyendo coincidencia del generador con fuerza bruta y ausencia de omisiones/duplicados al aplicar un intervalo de bridges. No se añadieron partidas de turnos en esta etapa. Los conteos anteriores ampliados dejaron de ser el dominio activo.
 
@@ -499,7 +509,7 @@ Referencia solicitada por el jugador: [video de Hypergeomancer](https://www.yout
 
 Incorporar al protocolo:
 
-- Contrastar 8–12 en cuatro colores, sin asumir el óptimo de Grixis. La lista balanceada transcrita suma 12 bridges, mientras otras y el cierre mencionan 10/11; verificar la figura antes de adoptar una conclusión universal.
+- Contrastar 6–12 en cuatro colores, sin asumir el óptimo de Grixis. La lista balanceada transcrita suma 12 bridges, mientras otras y el cierre mencionan 10/11; verificar la figura antes de adoptar una conclusión universal.
 - La transcripción aclara las 246 bases: seis tipos de tierra, cada uno 0–4, sumando 19. El barrido usa 246 × 10.000 × dos modos = 4,92M, más 40.000 para 19/20, total 4,96M. Nuestro universo usa once tipos y otro alcance.
 - Documentar parámetros y decisiones del piloto; conservar cartas medias de la mano y fallos de política como métricas independientes de victorias/derrotas.
 - Aislar el efecto de mulligans, composición y cortes al comparar 19/20; desglosar por tamaño de mano y cantidad de tierras conservadas.

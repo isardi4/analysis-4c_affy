@@ -222,7 +222,7 @@ def report(result, out):
         t = cell["exact"]["turns"]
         lines.append(f"| {cell['lands']} | {cell['bridges']} | {cell['lands']-cell['bridges']} | {cell['mode']} | {cell['policy']} | {pct(t[0]['probabilities_unconditional'].get('capacity_ge1',0))} | {pct(t[1]['probabilities_unconditional'].get('capacity_ge2',0))} | {pct(t[2]['probabilities_unconditional'].get('capacity_ge3',0))} | {sum(x['mean_capacity_unconditional'] for x in t[:3]):.3f} |")
     lines += ["", "## Lectura correcta", "",
-              "- Esta etapa cuantifica el coste de velocidad de 8–12 bridges. Al omitir fixing y resiliencia, entrar girado pierde sus compensaciones; no se puede descubrir un equilibrio interior completo con esta capa sola.",
+              "- Esta etapa cuantifica el coste de velocidad de 6–12 bridges. Al omitir fixing y resiliencia, entrar girado pierde sus compensaciones; no se puede descubrir un equilibrio interior completo con esta capa sola.",
               "- Las políticas pueden repartir capacidad de manera distinta entre T1 y T2. Más capacidad en un turno no prueba que se lanzaran más hechizos.",
               "- Una elección de 19/20 y ratio queda provisional hasta añadir colores, Boulder y robos. No trasladar automáticamente el resultado Grixis del video.",
               "- All four colours by T3 y Needed colours met quedan para la etapa de composición y spells. No hay resultados simulados de esos indicadores aquí.",

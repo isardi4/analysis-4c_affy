@@ -33,7 +33,7 @@ def main():
     page = Page()
     page.feed((SITE/'index.html').read_text())
     assert len(page.ids) == len(set(page.ids)), 'Duplicate HTML ids'
-    assert page.tabs == page.panels and len(page.tabs) == 6, 'Broken tab navigation'
+    assert page.tabs == page.panels and len(page.tabs) == 7, 'Broken tab navigation'
     for path in page.local_files:
         assert (SITE/path).is_file(), f'Missing local asset: {path}'
     prefix = 'window.AFFINITY_DATA = '
@@ -43,7 +43,7 @@ def main():
     structural = json.loads((ROOT/'results/structural_stages/results.json').read_text())
     assert data['structural']['opening_distribution'] == structural['opening_distribution']
     counts = structural['config']['part_2']['bridge_counts']
-    assert counts == [8,9,10,11,12]
+    assert counts == [6,7,8,9,10,11,12]
     expected_structural = len(structural['config']['land_totals'])*len(structural['config']['modes'])*(1+len(counts)*len(structural['config']['part_2']['policies']))
     assert data['structural']['control_trajectories'] == expected_structural*structural['config']['trials_per_cell']
     assert data['structural']['checks_passed'] == data['structural']['checks_total'] == structural['checks_total'] > 0
@@ -63,13 +63,23 @@ def main():
         assert source['metrics'] == packaged['metrics']
     for path, digest in color['source_hashes'].items():
         assert hashlib.sha256((ROOT/path).read_bytes()).hexdigest() == digest, f'Engine input changed: {path}'
+    stress = json.loads((ROOT/'results/boulder_hate/results.json').read_text())
+    assert stress['bridges'] == counts and stress['config']['boulders'] == [3,4]
+    expected_stress=len(counts)*2*2*2*len(stress['config']['scenarios'])
+    assert len(stress['cells']) == expected_stress
+    assert stress['total_trials'] == expected_stress*stress['config']['trials_per_cell']
+    assert data['boulder_hate']['paired_comparisons'] == stress['paired_comparisons']
+    for source,packaged in zip(stress['cells'],data['boulder_hate']['cells']):
+        assert source['metrics'] == packaged['metrics'] and source['means'] == packaged['means']
+    for path,digest in stress['source_hashes'].items():
+        assert hashlib.sha256((ROOT/path).read_bytes()).hexdigest() == digest, f'Hate model changed: {path}'
     manifest = json.loads((SITE/'downloads/manifest.json').read_text())
     for name, item in manifest['files'].items():
         expected = hashlib.sha256((ROOT/item['source']).read_bytes()).hexdigest()
         actual = hashlib.sha256((SITE/'downloads'/name).read_bytes()).hexdigest()
         assert expected == actual == item['sha256'], f'Download differs: {name}'
     assert all(d['text'] == (ROOT/d['path']).read_text() for d in data['documents'])
-    print(f'Publicación validada: seis pestañas, {expected_structural} celdas estructurales, {expected_color} celdas de colores y {len(manifest["files"])} descargas verificadas.')
+    print(f'Publicación validada: siete pestañas, {expected_structural} celdas estructurales, {expected_color} de colores, {expected_stress} de Boulder/hate y {len(manifest["files"])} descargas verificadas.')
 
 
 if __name__ == '__main__':

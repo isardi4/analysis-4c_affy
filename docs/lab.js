@@ -18,7 +18,11 @@
     profile: ['balanced', 'blue', 'white', 'black', 'red'].includes(params.get('profile')) ? params.get('profile') : 'balanced',
     weights: requestedWeights.length===4 && requestedWeights.every(w=>Number.isFinite(w)&&w>=0&&w<=1) ? requestedWeights.map(w=>Math.round(w*20)/20) : [1,1,1,1],
     compositionBridges: D.structural.config.part_2.bridge_counts.includes(Number(params.get('bridges'))) ? Number(params.get('bridges')) : 10,
-    tab: ['overview', 'parts', 'composition', 'profiles', 'method', 'documents'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'profiles',
+    scenario: Object.keys(D.boulder_hate.config.scenarios).includes(params.get('hate')) ? params.get('hate') : 'gorilla',
+    citadels: params.get('citadels') === '2' ? 2 : 0,
+    stressTurn: params.get('turn') === '4' ? 4 : 6,
+    frequency: Number.isFinite(Number(params.get('frequency'))) ? Math.max(0,Math.min(100,Math.round(Number(params.get('frequency'))/5)*5)) : 0,
+    tab: ['overview', 'parts', 'composition', 'profiles', 'stress', 'method', 'documents'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'stress',
   };
   let chartId = 0;
   const cell = (part, lands, mode, bridges = 0, policy = 'untapped_first') => {
@@ -149,6 +153,7 @@
     const p = new URLSearchParams();
     p.set('mode', state.mode); p.set('lands', state.lands); p.set('policy', state.policy); p.set('profile', state.profile);
     p.set('weights',state.weights.join(',')); p.set('bridges',state.compositionBridges);
+    p.set('hate',state.scenario);p.set('citadels',state.citadels);p.set('turn',state.stressTurn);p.set('frequency',state.frequency);
     history.replaceState(null, '', `${location.pathname}?${p}#${state.tab}`);
   }
   function activateTab(name, focus = false) {
@@ -162,6 +167,7 @@
     if (name === 'parts') { renderFixedCharts(); renderPartOne(); renderPartTwo(); }
     if (name === 'profiles') renderProfiles();
     if (name === 'composition') renderWeights();
+    if (name === 'stress') renderStress();
     updateURL();
   }
   function renderPartOne() {
@@ -244,7 +250,7 @@
     $('mode-explainer').textContent = state.mode === 'OTP'
       ? 'OTP decide el mulligan sobre siete cartas y no roba en T1.'
       : 'OTD decide el mulligan sobre siete cartas y roba una al comenzar T1.';
-    renderPartOne(); renderPartTwo(); renderProfiles(); updateURL();
+    renderPartOne(); renderPartTwo(); renderProfiles(); renderStress(); updateURL();
   }
   function renderProfiles() {
     const S = D.color_study;
@@ -299,6 +305,46 @@
     const ps = D.pilot.cells.filter(c => c.variant === 'original19_b4' && c.floor === 4);
     makeTable($('pilot-table'), ['Política', 'N', 'Boulder conservado', 'Boulder + enderezada', 'Cartas medias*', 'Fallo'], ps.map(c => ({ values: [c.policy === 'min_two' ? 'Mínimo dos tierras' : 'Buscar Boulder una vez', integer(c.n), pct(c.events.kept_boulder.rate), pct(c.events.kept_boulder_untapped.rate), fmt(c.mean_cards_unconditional, 3), pct(c.events.failed.rate)] })));
     $('universe-count').textContent = integer(D.search.scope_totals.wubr_core);
+  }
+  function renderStress() {
+    const S=D.boulder_hate;
+    const selected=S.cells.filter(c=>c.mode===state.mode && c.citadels===state.citadels && c.scenario===state.scenario);
+    const get=(b,k,scenario)=>S.cells.find(c=>c.bridges===b && c.boulders===k && c.mode===state.mode && c.citadels===state.citadels && c.scenario===scenario);
+    const rate=(c,key)=>c.metrics[key].p;
+    const metric=`suite_t${state.stressTurn}`;
+    const q=state.scenario==='none'?0:state.frequency/100;
+    const mixed=c=>(1-q)*rate(get(c.bridges,c.boulders,'none'),metric)+q*rate(c,metric);
+    const best=selected.reduce((a,b)=>mixed(b)>mixed(a)?b:a);
+    const interval=(c,key)=>`${pct(rate(c,key))} [${c.metrics[key].ci95.map(x=>fmt(100*x)).join('–')}]`;
+    $('stress-scenario').value=state.scenario;$('stress-citadels').value=state.citadels;$('stress-turn').value=state.stressTurn;
+    $('stress-frequency').value=state.frequency;$('stress-frequency').disabled=state.scenario==='none';
+    $('stress-frequency-value').textContent=`${fmt(100*q,0)} %`;
+    $('stress-sample').textContent=`${integer(S.total_trials)} intentos · ${integer(S.config.trials_per_cell)} por caso · solo 3/4 Boulder · bases Equilibrado · ${state.mode}. Piloto de hate, separado de la confirmación sin interacción de los perfiles predefinidos.`;
+    metrics($('stress-kpis'),[
+      {label:`Mayor capacidad · T${state.stressTurn}`,value:`${best.bridges} / ${best.boulders}`,caption:'bridges / Boulder · este diagnóstico de pagos'},
+      {label:`Motor y colores · T${state.stressTurn}`,value:pct(mixed(best)),caption:'Mezcla bajo tu hipótesis de frecuencia',color:'green'},
+      {label:'Boulder por quinto robo',value:pct((1-q)*rate(get(best.bridges,best.boulders,'none'),'boulder_by_fifth_draw')+q*rate(best,'boulder_by_fifth_draw')),caption:'Keep o primeros cinco robos reales · mezcla'},
+      {label:'Manos del escenario',value:integer(S.config.trials_per_cell),caption:'Cada proporción guarda su intervalo al 95%'},
+    ]);
+    $('stress-conditional-title').textContent=`Motor y colores en T${state.stressTurn}`;
+    $('stress-weighted-title').textContent=`T${state.stressTurn} · ${fmt(100*q,0)} % con este hate`;
+    const labels=S.bridges.map(b=>`${b} B`);
+    const series=(weighted)=>[3,4].map((k,i)=>({name:`${k} Boulder`,color:i?'#267c72':'#6685b1',values:S.bridges.map(b=>{const c=get(b,k,state.scenario);return 100*(weighted?mixed(c):rate(c,metric));})}));
+    chart($('stress-conditional-chart'),{title:'Capacidad de pagos después del hate, tres y cuatro Boulder',labels,series:series(false)});
+    chart($('stress-weighted-chart'),{title:'Mezcla hipotética de partidas sin hate y con el escenario elegido',labels,series:series(true)});
+    $('stress-mixture-finding').textContent=`Con q=${fmt(100*q,0)} %, ${state.citadels} Citadel y ${state.mode}, la mayor estimación puntual es ${best.bridges} bridges / ${best.boulders} Boulder (${pct(mixed(best))}). Es una comparación de pagos del motor entre estas bases, no una tasa de victoria ni un óptimo global. Las diferencias pequeñas pueden ser ruido.`;
+    $('stress-limitation').textContent='La frecuencia q es ajustable y empieza en cero. Una combinación puede ser mejor ante destrucción y peor ante exilio. El resultado depende también de la carta que reemplaza al cuarto Boulder y de esta política de juego; no se fuerza a que menos bridges sea peor.';
+    const rows=selected.sort((a,b)=>a.bridges-b.bridges || a.boulders-b.boulders);
+    const early=c=>(1-q)*rate(get(c.bridges,c.boulders,'none'),'development_t2_t3')+q*rate(c,'development_t2_t3');
+    const frontier=rows.filter(c=>!rows.some(other=>early(other)>=early(c) && mixed(other)>=mixed(c) && (early(other)>early(c) || mixed(other)>mixed(c))));
+    makeTable($('stress-frontier-table'),['Bridges','Boulder','Desarrollo T2–T3 · mezcla',`Motor y colores T${state.stressTurn} · mezcla`],frontier.map(c=>({values:[c.bridges,c.boulders,pct(early(c)),pct(mixed(c))]})));
+    makeTable($('stress-boulder-table'),['Bridges','Enderezadas','Boulder','Conservado','Por quinto robo','Operativo T3','4 colores T3','Desarrollo T2–T3'],rows.map(c=>({values:[c.bridges,19-c.bridges,c.boulders,...['boulder_kept','boulder_by_fifth_draw','boulder_t3','all4_t3','development_t2_t3'].map(k=>pct(rate(c,k)))]})));
+    makeTable($('stress-resilience-table'),['Bridges','Boulder','Sin hate','Con escenario [IC 95%]','Mezcla q','Tierras perdidas · T6','Boulder perdidos · T6','4 colores · turno elegido'],rows.map(c=>({active:c===best,values:[c.bridges,c.boulders,pct(rate(get(c.bridges,c.boulders,'none'),metric)),interval(c,metric),pct(mixed(c)),fmt(c.means.lands_lost),fmt(c.means.boulders_lost),pct(rate(c,`all4_t${state.stressTurn}`))]})));
+    makeTable($('stress-difference-table'),['Bridges','4 − 3 Boulder','IC 95% de la diferencia','Lectura'],S.bridges.map(b=>{
+      const d=S.paired_comparisons.find(c=>c.comparison==='four_minus_three' && c.bridges===b && c.citadels===state.citadels && c.mode===state.mode && c.scenario===state.scenario && c.metric===metric);
+      return {values:[b,points(100*d.difference),`[${d.ci95.map(x=>fmt(100*x)).join('; ')}] pp`,d.ci95[0]<=0 && d.ci95[1]>=0?'Incluye cero':d.difference>0?'Favorece 4':'Favorece 3']};
+    }));
+    makeTable($('stress-bases-table'),['Bridges','Fuentes W/U/B/R','Tierras exactas'],S.candidates.filter(c=>c.citadels===state.citadels).map(c=>({values:[c.bridges,Object.values(c.sources).join(' / '),Object.entries(c.lands).map(([name,n])=>`${n} ${name}`).join(' · ')]})));
   }
   let proposedBase;
   const weightBaselines = new Map();
@@ -437,12 +483,17 @@
     const link=node('a');link.href=url;link.download=`base-${state.compositionBridges}bridges-WUBR-${state.weights.join('-')}.json`;
     document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
   });
+  Object.entries(D.boulder_hate.config.scenarios).forEach(([value,s])=>{const option=node('option','',s.label);option.value=value;$('stress-scenario').append(option);});
+  $('stress-scenario').addEventListener('change',()=>{state.scenario=$('stress-scenario').value;renderStress();updateURL();});
+  $('stress-citadels').addEventListener('change',()=>{state.citadels=Number($('stress-citadels').value);renderStress();updateURL();});
+  $('stress-turn').addEventListener('change',()=>{state.stressTurn=Number($('stress-turn').value);renderStress();updateURL();});
+  $('stress-frequency').addEventListener('input',()=>{state.frequency=Number($('stress-frequency').value);renderStress();updateURL();});
   document.querySelectorAll('a[href="#overview"]').forEach(link => link.addEventListener('click', event => { event.preventDefault(); activateTab('overview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }));
-  addEventListener('hashchange', () => { const tab = location.hash.slice(1); if (['overview', 'parts', 'composition', 'profiles', 'method', 'documents'].includes(tab)) activateTab(tab); });
+  addEventListener('hashchange', () => { const tab = location.hash.slice(1); if (['overview', 'parts', 'composition', 'profiles', 'stress', 'method', 'documents'].includes(tab)) activateTab(tab); });
   let resizeTimer;
   addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => { renderFixedCharts(); renderPartOne(); renderPartTwo(); renderProfiles(); }, 120);
+    resizeTimer = setTimeout(() => { renderFixedCharts(); renderPartOne(); renderPartTwo(); renderProfiles(); renderStress(); }, 120);
   });
   renderFixedCharts(); renderMethod(); renderDocument(); renderWeights(); syncControls(); activateTab(state.tab);
   document.body.dataset.ready = 'true';

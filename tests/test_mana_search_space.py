@@ -51,7 +51,7 @@ class ManaSearchSpaceTests(unittest.TestCase):
                 self.assertEqual(sum(p["distinct_bases"] for p in profiles), count)
                 self.assertTrue(all(low <= p['bridges'] <= high and p['basics'] == 0 for p in profiles))
                 total += count
-        self.assertEqual(total, 4866162)
+        self.assertEqual(total, 5436552)
 
     def test_bridge_filter_is_applied_during_generation(self):
         scope = {"bridges": ["B1", "B2"], "ordinary_artifact_lands": ["A"],

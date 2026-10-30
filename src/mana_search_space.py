@@ -129,7 +129,7 @@ def write_search(output):
         writer.writeheader()
         writer.writerows(rows)
     lines = [f"# Universo activo: {low}–{high} bridges, sin básicas", "",
-             f"19/20 tierras, {low}–{high} bridges totales, ninguna básica y 0–4 copias de cada tierra del catálogo W/U/B/R, incluyendo Citadel. El resto son tierras artefacto enderezadas. Boulder se cruza en cantidades 0–4, con reemplazos explícitos para mantener 60 cartas.", "",
+             f"19/20 tierras, {low}–{high} bridges totales, ninguna básica y 0–4 copias de cada tierra del catálogo W/U/B/R, incluyendo Citadel. El resto son tierras artefacto enderezadas. Boulder se cruza en cantidades 3/4, con reemplazos explícitos para mantener 60 cartas.", "",
              "Todas las cantidades del rango activo se incluyen sin anticipar cuál será mejor.", "",
              "| Tierras | Bridges | Enderezadas | Bases distintas |",
              "| ---: | ---: | ---: | ---: |"]

@@ -31,7 +31,7 @@ def main():
         'scope': f'Recomendación de trabajo entre las {bases} bases probadas ({low}–{high} bridges); no óptimo global ni tasa de victoria.',
         'title': f'Punto de partida: {recommended} bridges + {19-recommended} enderezadas.',
         'text': f'Es el mejor valor puntual del desarrollo T2–T3 en el perfil equilibrado, con igual peso para OTP y OTD. Mantener {neighbor} bridges como control cercano permite revisar el ratio al optimizar las cartas concretas. El fixing de cuatro colores se informa aparte: no se fuerza a gastar cuatro colores si la mano no los necesita.',
-        'next_step': f'Optimizar qué bridges y tierras enderezadas forman la base de {recommended}/{19-recommended}; conservar {neighbor} bridges como sensibilidad. Después evaluar Citadel y hate de artefactos. La cantidad elegida puede revisarse si una composición mejor o una política de juego distinta cambia el resultado.',
+        'next_step': f'Optimizar qué bridges y tierras enderezadas forman la base de {recommended}/{19-recommended}; conservar {neighbor} bridges como sensibilidad. Cruzar con el piloto condicional de Citadel y hate y ampliar la validación. La cantidad elegida puede revisarse si una composición mejor o una política de juego distinta cambia el resultado.',
     }
     d['decision'] = decision
     d['profile_winners'] = [{'profile': p, 'development': winner(p, 'needed_t2_t3'),

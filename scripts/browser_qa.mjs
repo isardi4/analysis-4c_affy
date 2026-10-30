@@ -43,15 +43,34 @@ try {
   let ready = false;
   for (let i = 0; i < 100; i++) { ready = await evaluate('document.body?.dataset.ready === "true"'); if (ready) break; await delay(100); }
   assert(ready, 'Report did not initialize');
-  assert.equal(await evaluate('document.querySelector("[role=tab][aria-selected=true]").dataset.tab'), 'profiles');
-  assert.equal(await evaluate('document.querySelectorAll("#color-results-table tbody tr").length'), 5);
+  assert.equal(await evaluate('document.querySelector("[role=tab][aria-selected=true]").dataset.tab'), 'stress');
+  assert.equal(await evaluate('document.querySelectorAll("#stress-resilience-table tbody tr").length'),14);
+  assert.equal(await evaluate('document.querySelectorAll("#stress-difference-table tbody tr").length'),7);
+  assert((await evaluate('document.querySelectorAll("#stress-frontier-table tbody tr").length'))>0);
+  assert.equal(await evaluate('document.querySelectorAll("#stress-conditional-chart .chart-value-label").length'),14);
+  assert((await evaluate('document.getElementById("stress-sample").textContent')).includes('672.000'));
+  let stressShot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});
+  await writeFile(`${artifacts}/boulder-hate-desktop.png`,Buffer.from(stressShot.data,'base64'));
+  const conditional=await evaluate('document.getElementById("stress-conditional-chart").dataset.values');
+  const beforeMixture=await evaluate('document.getElementById("stress-weighted-chart").dataset.values');
+  await evaluate('document.getElementById("stress-frequency").value="100";document.getElementById("stress-frequency").dispatchEvent(new Event("input"))');
+  assert.equal(await evaluate('document.getElementById("stress-weighted-chart").dataset.values'),conditional);
+  assert.notEqual(conditional,beforeMixture);
+  await evaluate('document.getElementById("stress-citadels").value="2";document.getElementById("stress-citadels").dispatchEvent(new Event("change"))');
+  assert.notEqual(await evaluate('document.getElementById("stress-conditional-chart").dataset.values'),conditional);
+  for(const scenario of ['none','dust','masked','vandalblast','overload','gorilla']) {
+    await evaluate(`document.getElementById('stress-scenario').value='${scenario}';document.getElementById('stress-scenario').dispatchEvent(new Event('change'))`);
+    assert.equal(await evaluate('document.querySelectorAll("#stress-resilience-table tbody tr").length'),14);
+  }
+  await evaluate('document.getElementById("stress-frequency").value="0";document.getElementById("stress-frequency").dispatchEvent(new Event("input"));document.getElementById("stress-citadels").value="0";document.getElementById("stress-citadels").dispatchEvent(new Event("change"));document.querySelector("[data-tab=profiles]").click()');
+  assert.equal(await evaluate('document.querySelectorAll("#color-results-table tbody tr").length'),7);
   assert.equal(await evaluate('document.querySelectorAll("#color-profile-table tbody tr").length'), 5);
-  assert((await evaluate('document.getElementById("color-sample-note").textContent')).includes('500.000'));
-  assert.equal(await evaluate('document.querySelectorAll("#color-function-chart .chart-value-label").length'), 15);
-  assert.equal(await evaluate('document.querySelectorAll("#color-early-chart .chart-value-label").length'), 20);
+  assert((await evaluate('document.getElementById("color-sample-note").textContent')).includes('700.000'));
+  assert.equal(await evaluate('document.querySelectorAll("#color-function-chart .chart-value-label").length'), 21);
+  assert.equal(await evaluate('document.querySelectorAll("#color-early-chart .chart-value-label").length'), 28);
   await evaluate('document.querySelector("[data-tab=composition]").click()');
   assert.equal(await evaluate('document.getElementById("panel-profiles").hidden'),true);
-  assert.deepEqual(await evaluate('Array.from(document.getElementById("weight-bridges").options).map(x=>Number(x.value))'),[8,9,10,11,12]);
+  assert.deepEqual(await evaluate('Array.from(document.getElementById("weight-bridges").options).map(x=>Number(x.value))'),[6,7,8,9,10,11,12]);
   assert((await evaluate('document.getElementById("weight-status").textContent')).includes('120.480'));
   const sourceBaseline=await evaluate('JSON.parse(document.getElementById("weight-result").dataset.sources)');
   for (const [i,color] of ['W','U','B','R'].entries()) {
@@ -78,11 +97,11 @@ try {
   }
   await evaluate('document.getElementById("profile-select").value="balanced"; document.getElementById("profile-select").dispatchEvent(new Event("change")); document.querySelector("[data-tab=parts]").click()');
   assert.equal(await evaluate('document.querySelectorAll("#part-one-table tbody tr").length'), 4);
-  assert.equal(await evaluate('document.querySelectorAll("#part-two-table tbody tr").length'), 5);
+  assert.equal(await evaluate('document.querySelectorAll("#part-two-table tbody tr").length'), 7);
   assert((await evaluate('document.getElementById("land-kpis").innerText')).includes('78,05'));
   assert.equal(await evaluate('document.querySelectorAll("#opening-chart .chart-value-label").length'), 16);
   assert.equal(await evaluate('document.querySelectorAll("#curve-chart .chart-value-label").length'), 12);
-  assert.equal(await evaluate('document.querySelectorAll("#ratio-chart .chart-value-label").length'), 15);
+  assert.equal(await evaluate('document.querySelectorAll("#ratio-chart .chart-value-label").length'), 21);
   assert(await evaluate('Array.from(document.querySelectorAll(".chart-value-label")).every(x=>/^\\d+,\\d{2} %$/.test(x.textContent))'));
   assert.equal(await evaluate('document.querySelector("#curve-chart .chart-value-label[data-index=\\"2\\"][data-series=\\"0\\"]").textContent'), '78,05 %');
   assert((await evaluate('document.querySelector(".table-definition").textContent')).includes('1 + 2 + 3'));
@@ -92,21 +111,22 @@ try {
   assert.equal(await evaluate('document.querySelector("#curve-chart .chart-value-label[data-index=\\"2\\"][data-series=\\"0\\"]").textContent'), '85,15 %');
   assert.equal(await evaluate('document.querySelector("[data-mode=OTD]").getAttribute("aria-pressed")'), 'true');
   await evaluate('document.querySelector("[data-lands=\\"20\\"]").click()');
-  assert.equal(await evaluate('document.querySelector("#part-two-table tbody tr td:nth-child(2)").textContent'), '12');
+  assert.equal(await evaluate('document.querySelector("#part-two-table tbody tr td:nth-child(2)").textContent'), '14');
   const before = await evaluate('document.getElementById("ratio-chart").dataset.values');
   await evaluate('document.getElementById("policy-select").value="bridge_t1_then_untapped"; document.getElementById("policy-select").dispatchEvent(new Event("change"))');
   const after = await evaluate('document.getElementById("ratio-chart").dataset.values');
   assert.notEqual(before, after, 'Policy must change actual chart values');
-  for (const tab of ['overview', 'composition', 'profiles', 'method', 'documents', 'parts']) {
+  for (const tab of ['overview', 'composition', 'profiles', 'stress', 'method', 'documents', 'parts']) {
     await evaluate(`document.querySelector('[data-tab="${tab}"]').click()`);
     assert.equal(await evaluate(`document.getElementById('panel-${tab}').hidden`), false);
     assert.equal(await evaluate('Array.from(document.querySelectorAll("[role=tabpanel]")).filter(x=>!x.hidden).length'), 1);
   }
   await evaluate('document.querySelector("[data-tab=documents]").click(); document.getElementById("document-select").value="doc-1"; document.getElementById("document-select").dispatchEvent(new Event("change"))');
   assert((await evaluate('document.getElementById("document-reader").innerText')).includes('Hypergeomancer'));
+  assert.equal(await evaluate('fetch("downloads/boulder-hate-results.json").then(r=>r.json()).then(x=>x.total_trials)'),672000);
   const downloaded = await evaluate('fetch("downloads/structural-results.json").then(r=>r.json()).then(x=>x.cells.length)');
-  assert.equal(downloaded, 44);
-  assert.equal(await evaluate('fetch("downloads/color-results.json").then(r=>r.json()).then(x=>x.total_trials)'),500000);
+  assert.equal(downloaded, 60);
+  assert.equal(await evaluate('fetch("downloads/color-results.json").then(r=>r.json()).then(x=>x.total_trials)'),700000);
   await evaluate('document.querySelector("[data-tab=profiles]").click(); window.scrollTo(0,0)');
   await delay(200);
   let colorShot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
@@ -119,7 +139,7 @@ try {
   await delay(250);
   const mobile = await evaluate('({width:innerWidth, body:document.body.scrollWidth, root:document.documentElement.scrollWidth})');
   assert(mobile.body <= mobile.width + 1 && mobile.root <= mobile.width + 1, `Mobile overflow: ${JSON.stringify(mobile)}`);
-  for (const tab of ['overview', 'composition', 'profiles', 'method', 'documents', 'parts']) {
+  for (const tab of ['overview', 'composition', 'profiles', 'stress', 'method', 'documents', 'parts']) {
     await evaluate(`document.querySelector('[data-tab="${tab}"]').click()`);
     const dimensions = await evaluate('({width:innerWidth, body:document.body.scrollWidth})');
     assert(dimensions.body <= dimensions.width + 1, `Overflow on ${tab}`);

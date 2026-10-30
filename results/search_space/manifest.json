@@ -9,25 +9,22 @@
     "nonbasic_copy_limit": 4,
     "maximum_basic_lands_total": 0,
     "bridge_range": [
-      8,
+      6,
       12
     ],
     "bridge_bands": {
       "activo": [
-        8,
+        6,
         12
       ]
     },
     "boulder_counts": [
       4,
-      3,
-      2,
-      1,
-      0
+      3
     ],
     "scopes": {
       "wubr_core": {
-        "role": "Active domain: W/U/B/R artifact lands and six bridge pairs, 8–12 bridges total and no basics. All distributions inside these bounds are searchable.",
+        "role": "Active domain: W/U/B/R artifact lands and six bridge pairs, 6–12 bridges total and no basics. All distributions inside these bounds are searchable.",
         "bridges": [
           "Razortide Bridge",
           "Mistvault Bridge",
@@ -49,7 +46,7 @@
       }
     },
     "restrictions": [
-      "Every named land ranges from zero to four, including Citadel. Total bridges are 8–12 inclusive. No fixed Vault, Synod, Furnace or Citadel count is imposed.",
+      "Every named land ranges from zero to four, including Citadel. Total bridges are 6–12 inclusive. No fixed Vault, Synod, Furnace or Citadel count is imposed.",
       "Exactly 19 or 20 lands. Basic lands and their Wildfire analysis are excluded at the player's request.",
       "The active pool is the W/U/B/R subset formerly counted as 32,205,701 with optional basics. The green extension is inactive, not proven dominated; this is a declared practical scope.",
       "Other lands such as tapped nonartifact duals, fetches or utility lands are outside this declared domain unless later added explicitly.",
@@ -60,29 +57,43 @@
       "Represent and count every base exactly using bounded compositions and generating functions.",
       "Evaluate exact opening controls for every base through proven-equivalent aggregate profiles; save profile multiplicities and coverage totals.",
       "Add per-card color, pair and vulnerability information for the turn model. Discard branches only with a valid bound or explicit infeasibility certificate for the declared objectives.",
-      "Stratify Monte Carlo by bridge count 8–12. Retain all five counts within the active range.",
+      "Stratify Monte Carlo by bridge count 6–12. Retain all five counts within the active range.",
       "Keep uncertainty-aware finalists and confirm with new seeds; state exactly what was counted, evaluated analytically, simulated or pruned."
     ]
   },
   "counts": {
     "wubr_core": {
       "19": {
-        "all_bases": 2357556,
+        "all_bases": 2679306,
         "bands": {
-          "activo": 2357556
+          "activo": 2679306
         },
-        "profiles": 25
+        "profiles": 35
       },
       "20": {
-        "all_bases": 2508606,
+        "all_bases": 2757246,
         "bands": {
-          "activo": 2508606
+          "activo": 2757246
         },
-        "profiles": 25
+        "profiles": 35
       }
     }
   },
   "per_bridge_counts": [
+    {
+      "scope": "wubr_core",
+      "lands": 19,
+      "bridges": 6,
+      "untapped": 13,
+      "distinct_bases": 108630
+    },
+    {
+      "scope": "wubr_core",
+      "lands": 19,
+      "bridges": 7,
+      "untapped": 12,
+      "distinct_bases": 213120
+    },
     {
       "scope": "wubr_core",
       "lands": 19,
@@ -121,6 +132,20 @@
     {
       "scope": "wubr_core",
       "lands": 20,
+      "bridges": 6,
+      "untapped": 14,
+      "distinct_bases": 78810
+    },
+    {
+      "scope": "wubr_core",
+      "lands": 20,
+      "bridges": 7,
+      "untapped": 13,
+      "distinct_bases": 169830
+    },
+    {
+      "scope": "wubr_core",
+      "lands": 20,
       "bridges": 8,
       "untapped": 12,
       "distinct_bases": 304320
@@ -155,15 +180,15 @@
     }
   ],
   "scope_totals": {
-    "wubr_core": 4866162
+    "wubr_core": 5436552
   },
   "base_boulder_pairs": {
-    "wubr_core": 24330810
+    "wubr_core": 10873104
   },
   "source_sha256": {
-    "configs/mana_search_space.json": "164d00c1194598cb6750a05465fd37ab6842b0f7d371d7c95478e123fded884b",
+    "configs/mana_search_space.json": "f90b85b4f16185a8725f5f4ab8941aac29fae884470c129b42e80e9aa15ebec7",
     "data/opening_catalog.json": "b11308496127ac9af4ecd6040310f07870a9ab02720b496be7c0acfd11f17ef2",
-    "src/mana_search_space.py": "878835a7a7ca82909d6c202ab537e7ca5e45171ea0d622e2e8855504d13566fb",
+    "src/mana_search_space.py": "277b21ea8b84fbb5db302e29e6fd0fd373e202ea15f194d39ff38f3bdab64a5d",
     "src/opening_pilot.py": "95db8c2da90a8d17cbd61bb62e05dd0bcb16e87b047e6a0df121a0c439e616aa"
   }
 }

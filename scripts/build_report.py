@@ -16,15 +16,16 @@ def main():
     pilot = json.loads((ROOT/'results/pilot_01/results.json').read_text())
     search = json.loads((ROOT/'results/search_space/manifest.json').read_text())
     color_study = json.loads((ROOT/'results/color_bridges/results.json').read_text())
+    boulder_hate = json.loads((ROOT/'results/boulder_hate/results.json').read_text())
     cells = [{k: v for k, v in c.items() if k != 'monte_carlo'} for c in structural['cells']]
     inputs = ['PLAN_ANALISIS.md', 'ANALISIS_VIDEO_HYPERGEOMANCER.md',
               'results/structural_stages/informe.md', 'results/pilot_01/informe_piloto.md',
-              'results/search_space/universo_busqueda.md', 'README.md', 'results/color_bridges/informe.md']
+              'results/search_space/universo_busqueda.md', 'README.md', 'results/color_bridges/informe.md', 'results/boulder_hate/informe.md']
     documents = [{'id': f'doc-{i}', 'path': p, 'title': title, 'text': (ROOT/p).read_text()}
                  for i, (p, title) in enumerate(zip(inputs, [
                      'Plan completo', 'Lectura del video y transcripción',
                      'Informe · partes 1 y 2', 'Piloto · aperturas y mulligans',
-                     'Universo de composiciones', 'Guía reproducible', 'Colores tempranos y bridges']))]
+                     'Universo de composiciones', 'Guía reproducible', 'Colores tempranos y bridges', 'Boulder, Citadel y hate']))]
     data = {
         'version': '1.1', 'date': '2026-10-29',
         'repository': 'https://github.com/isardi4/analysis-4c_affy',
@@ -41,6 +42,7 @@ def main():
                    'per_bridge_counts': search['per_bridge_counts']},
         'documents': documents,
         'color_study': {**color_study, 'cells': [{k:v for k,v in c.items() if k != 'traces'} for c in color_study['cells']]},
+        'boulder_hate': {**boulder_hate, 'cells': [{k:v for k,v in c.items() if k != 'traces'} for c in boulder_hate['cells']]},
         'verification': {'test_count': unittest.TestLoader().discover(str(ROOT/'tests')).countTestCases(),
                          'command': 'python3 -m unittest discover -s tests -v',
                          'reference_status': 'Lista candidata del mismo jugador y torneo; exportación original de Goldfish pendiente de contraste.'},
@@ -65,6 +67,9 @@ def main():
         'color-results.json': 'results/color_bridges/results.json',
         'color-metrics.csv': 'results/color_bridges/metrics.csv',
         'color-report.md': 'results/color_bridges/informe.md',
+        'boulder-hate-results.json': 'results/boulder_hate/results.json',
+        'boulder-hate-metrics.csv': 'results/boulder_hate/metrics.csv',
+        'boulder-hate-report.md': 'results/boulder_hate/informe.md',
     }
     manifest = {'data_version': data['version'], 'files': {}}
     for target, source in copies.items():

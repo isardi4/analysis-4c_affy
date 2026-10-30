@@ -25,7 +25,7 @@ class StructuralStagesTests(unittest.TestCase):
 
     def test_opening_mass_and_minimum_lands(self):
         for lands in (19,20):
-            for bridges in (0,8,12):
+            for bridges in (0,6,12):
                 states, data = opening_exact(lands,bridges)
                 self.assertAlmostEqual(sum(states.values())+data['failed'],1)
                 self.assertAlmostEqual(sum(data['hand_sizes'].values())+data['failed'],1)

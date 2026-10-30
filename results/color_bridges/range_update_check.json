@@ -1,16 +1,14 @@
 {
-  "reference_commit": "d92df74ca09798badf684494ac41a8ddf2968abc",
+  "reference_commit": "9a3e0642fe75bbb93a94344192d1befe020274e4",
   "previous_range": [
-    9,
-    14
-  ],
-  "active_range": [
     8,
     12
   ],
-  "color_cells_identical": 40,
-  "structural_cells_identical": 36,
-  "color_seed": 2026102902,
-  "color_trials_per_cell": 10000,
-  "status": "pass; all overlapping cells identical, including counts, means and traces"
+  "active_range": [
+    6,
+    12
+  ],
+  "color_cells_identical": 50,
+  "structural_cells_identical": 44,
+  "status": "pass; overlapping metrics, means and traces unchanged"
 }
