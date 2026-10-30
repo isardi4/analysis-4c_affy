@@ -20,6 +20,9 @@
     compositionBridges: D.structural.config.part_2.bridge_counts.includes(Number(params.get('bridges'))) ? Number(params.get('bridges')) : 10,
     scenario: Object.keys(D.boulder_hate.config.scenarios).includes(params.get('hate')) ? params.get('hate') : 'gorilla',
     citadels: params.get('citadels') === '2' ? 2 : 0,
+    decisionBoulders: params.get('decision_boulders') === '3' ? 3 : 4,
+    decisionPosition: ['OTP','OTD'].includes(params.get('decision_position')) ? params.get('decision_position') : 'both',
+    decisionBudget: params.has('decision_budget') && Number.isInteger(Number(params.get('decision_budget'))) ? Math.max(0,Math.min(6,Number(params.get('decision_budget')))) : 2,
     stressTurn: params.get('turn') === '4' ? 4 : 6,
     frequency: Number.isFinite(Number(params.get('frequency'))) ? Math.max(0,Math.min(100,Math.round(Number(params.get('frequency'))/5)*5)) : 0,
     tab: ['overview', 'parts', 'composition', 'profiles', 'stress', 'method', 'documents'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'stress',
@@ -154,6 +157,7 @@
     p.set('mode', state.mode); p.set('lands', state.lands); p.set('policy', state.policy); p.set('profile', state.profile);
     p.set('weights',state.weights.join(',')); p.set('bridges',state.compositionBridges);
     p.set('hate',state.scenario);p.set('citadels',state.citadels);p.set('turn',state.stressTurn);p.set('frequency',state.frequency);
+    p.set('decision_boulders',state.decisionBoulders);p.set('decision_position',state.decisionPosition);p.set('decision_budget',state.decisionBudget);
     history.replaceState(null, '', `${location.pathname}?${p}#${state.tab}`);
   }
   function activateTab(name, focus = false) {
@@ -345,6 +349,34 @@
       return {values:[b,points(100*d.difference),`[${d.ci95.map(x=>fmt(100*x)).join('; ')}] pp`,d.ci95[0]<=0 && d.ci95[1]>=0?'Incluye cero':d.difference>0?'Favorece 4':'Favorece 3']};
     }));
     makeTable($('stress-bases-table'),['Bridges','Fuentes W/U/B/R','Tierras exactas'],S.candidates.filter(c=>c.citadels===state.citadels).map(c=>({values:[c.bridges,Object.values(c.sources).join(' / '),Object.entries(c.lands).map(([name,n])=>`${n} ${name}`).join(' · ')]})));
+    renderDecisionMatrix();
+  }
+  function renderDecisionMatrix() {
+    const S=D.boulder_hate;
+    const modes=state.decisionPosition==='both'?['OTP','OTD']:[state.decisionPosition];
+    const get=(b,mode,scenario)=>S.cells.find(c=>c.bridges===b && c.boulders===state.decisionBoulders && c.mode===mode && c.scenario===scenario && c.citadels===state.citadels);
+    const meanRate=(b,scenario,metric)=>modes.reduce((sum,mode)=>sum+get(b,mode,scenario).metrics[metric].p,0)/modes.length;
+    const bridges=S.bridges;
+    const speed=Object.fromEntries(bridges.map(b=>[b,meanRate(b,'none','development_t2_t3')]));
+    const fastest=Math.max(...Object.values(speed));
+    const q=state.scenario==='none'?0:state.frequency/100;
+    const scenarios=Object.keys(S.config.scenarios);
+    const mixedRate=b=>(1-q)*meanRate(b,'none','suite_t6')+q*meanRate(b,state.scenario,'suite_t6');
+    const solidity=Object.fromEntries(scenarios.map(s=>[s,Object.fromEntries(bridges.map(b=>[b,meanRate(b,s,'suite_t6')]))]));
+    const budgets=[0,1,2,3,4,5,6];
+    const choose=(score,budget)=>bridges.map(b=>({b,score:score(b)})).filter(x=>speed[x.b]>=fastest-budget/100-1e-10)
+      .sort((a,b)=>b.score-a.score || speed[b.b]-speed[a.b] || a.b-b.b)[0];
+    const shortNames={none:'Sin hate · motor',vandalblast:'Vandalblast',masked:'Masked Vandal',dust:'Dust to Dust',gorilla:'Gorilla Shaman',overload:'Vandalblast overload'};
+    const cols=[...scenarios.map(s=>({key:s,label:shortNames[s],score:b=>solidity[s][b]})),
+      {key:'mix',label:`Tu mezcla · q ${fmt(100*q,0)}%`,score:mixedRate}];
+    makeTable($('decision-matrix'),['Velocidad cedida','Sin hate','Vandalblast','Masked Vandal','Dust to Dust','Gorilla','Overload','Mezcla q'],budgets.map(budget=>({values:[`≤ ${budget} pp`,...cols.map(col=>{
+      const best=choose(col.score,budget);return `${best.b} B · ${pct(best.score)}`;
+    })]})));
+    const rows=bridges.map(b=>({values:[b,`${19-b} artefacto${19-b===1?'':'s'} enderezado${19-b===1?'':'s'}`,pct(speed[b]),points(100*(speed[b]-fastest)),pct(solidity[state.scenario][b]),pct(mixedRate(b))]}));
+    makeTable($('decision-ratio-table'),['Bridges','Tierras artefacto','Desarrollo T2–T3 · sin hate','Δ vs. más rápido','Motor T6 · escenario elegido','Motor T6 · mezcla q'],rows);
+    const preferred=choose(mixedRate,state.decisionBudget);
+    $('decision-boulders').value=state.decisionBoulders;$('decision-position').value=state.decisionPosition;$('decision-budget').value=state.decisionBudget;
+    $('decision-matrix-summary').textContent=`Con ${state.decisionBoulders} Boulder, ${state.citadels} Citadel y ${state.decisionPosition==='both'?'OTP/OTD al 50%':state.decisionPosition}, aceptar hasta ${state.decisionBudget} pp menos de desarrollo elige ${preferred.b} bridges: ${pct(speed[preferred.b])} de desarrollo sin hate y ${pct(preferred.score)} de motor T6 bajo la mezcla actual. A q=0, esa última cifra también es sin hate. El resultado cambia al mover el límite, el escenario o q; no hay una cantidad única óptima sin fijar cuánto valorás esos intercambios.`;
   }
   let proposedBase;
   const weightBaselines = new Map();
@@ -488,6 +520,9 @@
   $('stress-citadels').addEventListener('change',()=>{state.citadels=Number($('stress-citadels').value);renderStress();updateURL();});
   $('stress-turn').addEventListener('change',()=>{state.stressTurn=Number($('stress-turn').value);renderStress();updateURL();});
   $('stress-frequency').addEventListener('input',()=>{state.frequency=Number($('stress-frequency').value);renderStress();updateURL();});
+  $('decision-boulders').addEventListener('change',()=>{state.decisionBoulders=Number($('decision-boulders').value);renderDecisionMatrix();updateURL();});
+  $('decision-position').addEventListener('change',()=>{state.decisionPosition=$('decision-position').value;renderDecisionMatrix();updateURL();});
+  $('decision-budget').addEventListener('change',()=>{state.decisionBudget=Number($('decision-budget').value);renderDecisionMatrix();updateURL();});
   document.querySelectorAll('a[href="#overview"]').forEach(link => link.addEventListener('click', event => { event.preventDefault(); activateTab('overview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }));
   addEventListener('hashchange', () => { const tab = location.hash.slice(1); if (['overview', 'parts', 'composition', 'profiles', 'stress', 'method', 'documents'].includes(tab)) activateTab(tab); });
   let resizeTimer;

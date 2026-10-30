@@ -63,6 +63,22 @@ def main():
         early=sum(p(cell(bridge,4,m,'none'),'development_t2_t3') for m in ('OTP','OTD'))/2
         late=sum(p(cell(bridge,4,m,'none'),'suite_t6') for m in ('OTP','OTD'))/2
         lines.append(f'- {bridge} bridges / 4 Boulder / 0 Citadel, sin hate: desarrollo T2–T3 {pc(early)}; diagnóstico de motor T6 {pc(late)}. Media OTP/OTD con igual peso.')
+    lines+=['','## Matriz: límite de velocidad cedida por robustez','',
+            'La matriz fija una regla interpretable: primero se define cuánto desarrollo T2–T3 se acepta perder, en puntos porcentuales frente al ratio más rápido; después se elige el número de bridges con mayor tasa estimada de motor y cuatro colores en T6 dentro de ese límite. No se inventa un puntaje que sume velocidad y solidez. Cada columna es un escenario puro (q=100% para ese hate). La referencia está fijada en cuatro Boulder, 0 Citadel y media simple OTP/OTD; el HTML permite cambiar Boulder, Citadel y posición, además de añadir una mezcla hipotética q.','',
+            '| Velocidad cedida | Sin hate · motor | Vandalblast | Masked Vandal | Dust to Dust | Gorilla Shaman | Vandalblast overload |','| ---: | --- | --- | --- | --- | --- | --- |']
+    modes=('OTP','OTD');matrix_bridges=list(counts)
+    speed={b:sum(p(cell(b,4,m,'none',0),'development_t2_t3') for m in modes)/2 for b in matrix_bridges}
+    fastest=max(speed.values())
+    matrix_scenarios=list(cfg['scenarios'])
+    for budget in range(7):
+        row=[f'≤ {budget} pp']
+        for scenario in matrix_scenarios:
+            eligible=[b for b in matrix_bridges if speed[b]>=fastest-budget/100-1e-10]
+            best=max(eligible,key=lambda b:(sum(p(cell(b,4,m,scenario,0),'suite_t6') for m in modes)/2,speed[b],-b))
+            score=sum(p(cell(best,4,m,scenario,0),'suite_t6') for m in modes)/2
+            row.append(f'{best} bridges · {pc(score)}')
+        lines.append('| '+' | '.join(row)+' |')
+    lines+=['','“≤ 2 pp” no significa que dos puntos sean universalmente aceptables: es una referencia ajustable para ver qué cambia. La columna sin hate optimiza capacidad de pagos, no resistencia. Destrucción y exilio producen ganadores diferentes. Estas son estimaciones puntuales de 2.000 intentos por celda; los resultados cercanos no distinguen con seguridad los ratios.','']
     lines+=['','## Resistencia por escenario','',
             'La mejor estimación puntual del diagnóstico de motor T6 se muestra por escenario. Se da igual peso a OTP y OTD para esta tabla descriptiva; no se presupone frecuencia de cada tipo de hate.','',
             '| Escenario | Citadel | Mejor combinación puntual | Motor T6 · media OTP/OTD |','| --- | ---: | --- | ---: |']
