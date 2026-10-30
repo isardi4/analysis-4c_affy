@@ -22,8 +22,8 @@
     citadels: params.get('citadels') === '2' ? 2 : 0,
     decisionBoulders: params.get('decision_boulders') === '3' ? 3 : 4,
     decisionPosition: ['OTP','OTD'].includes(params.get('decision_position')) ? params.get('decision_position') : 'both',
-    decisionBudget: params.has('decision_budget') && Number.isInteger(Number(params.get('decision_budget'))) ? Math.max(0,Math.min(6,Number(params.get('decision_budget')))) : 2,
-    decisionCriterion: params.get('decision_criterion') === 'worst' ? 'worst' : 'average',
+    decisionExile: Number.isFinite(Number(params.get('decision_exile'))) ? Math.max(0,Math.min(100,Math.round(Number(params.get('decision_exile'))/5)*5)) : 50,
+    selectedBridge: D.structural.config.part_2.bridge_counts.includes(Number(params.get('decision_bridges'))) ? Number(params.get('decision_bridges')) : 10,
     stressTurn: params.get('turn') === '4' ? 4 : 6,
     frequency: Number.isFinite(Number(params.get('frequency'))) ? Math.max(0,Math.min(100,Math.round(Number(params.get('frequency'))/5)*5)) : 0,
     tab: ['overview', 'decision', 'parts', 'composition', 'profiles', 'stress', 'method', 'documents'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'decision',
@@ -158,8 +158,8 @@
     p.set('mode', state.mode); p.set('lands', state.lands); p.set('policy', state.policy); p.set('profile', state.profile);
     p.set('weights',state.weights.join(',')); p.set('bridges',state.compositionBridges);
     p.set('hate',state.scenario);p.set('citadels',state.citadels);p.set('turn',state.stressTurn);p.set('frequency',state.frequency);
-    p.set('decision_boulders',state.decisionBoulders);p.set('decision_position',state.decisionPosition);p.set('decision_budget',state.decisionBudget);
-    p.set('decision_criterion',state.decisionCriterion);
+    p.set('decision_boulders',state.decisionBoulders);p.set('decision_position',state.decisionPosition);
+    p.set('decision_exile',state.decisionExile);p.set('decision_bridges',state.selectedBridge);
     history.replaceState(null, '', `${location.pathname}?${p}#${state.tab}`);
   }
   function activateTab(name, focus = false) {
@@ -358,41 +358,71 @@
     const S=D.boulder_hate;
     const modes=state.decisionPosition==='both'?['OTP','OTD']:[state.decisionPosition];
     const get=(b,mode,scenario)=>S.cells.find(c=>c.bridges===b && c.boulders===state.decisionBoulders && c.mode===mode && c.scenario===scenario && c.citadels===state.citadels);
-    const meanRate=(b,scenario,metric)=>modes.reduce((sum,mode)=>sum+get(b,mode,scenario).metrics[metric].p,0)/modes.length;
     const bridges=S.bridges;
-    const speed=Object.fromEntries(bridges.map(b=>[b,meanRate(b,'none','development_t2_t3')]));
-    const fastest=Math.max(...Object.values(speed));
-    const scenarios=Object.keys(S.config.scenarios);
-    const solidity=Object.fromEntries(scenarios.map(s=>[s,Object.fromEntries(bridges.map(b=>[b,meanRate(b,s,'suite_t6')]))]));
-    const hates=scenarios.filter(s=>s!=='none');
-    const average=b=>hates.reduce((sum,s)=>sum+solidity[s][b],0)/hates.length;
-    const worst=b=>Math.min(...hates.map(s=>solidity[s][b]));
-    const score=state.decisionCriterion==='worst'?worst:average;
-    const budgets=[0,1,2,3,4,5,6];
-    const choose=(objective,budget)=>bridges.map(b=>({b,value:objective(b)})).filter(x=>speed[x.b]>=fastest-budget/100-1e-10)
-      .sort((a,b)=>b.value-a.value || speed[b.b]-speed[a.b] || a.b-b.b)[0];
-    const shortNames={none:'Sin hate',vandalblast:'Vandalblast · puntual',masked:'Masked Vandal · exilio 1',dust:'Dust to Dust · exilio 2',gorilla:'Gorilla Shaman · repetido',overload:'Vandalblast · masivo',ancient_grudge:'Ancient Grudge · dos turnos',gleeful:'Gleeful Sabotage · dos objetivos'};
-    const objectives=[...scenarios.map(s=>({label:shortNames[s],fn:b=>solidity[s][b]})),
-      {label:`Media de ${hates.length} hates`,fn:average},{label:'Peor hate',fn:worst},
-      {label:state.decisionCriterion==='worst'?'Criterio actual · peor caso':'Criterio actual · promedio',fn:score}];
-    makeTable($('decision-matrix'),['Desarrollo cedido',...objectives.map(o=>o.label)],budgets.map(budget=>({values:[`≤ ${budget} pp`,...objectives.map(o=>{
-      const best=choose(o.fn,budget);return `${best.b} B · ${pct(best.value)}`;
-    })]})));
-    const preferred=choose(score,state.decisionBudget);
-    const ratioRows=bridges.map(b=>({active:b===preferred.b,values:[b,19-b,pct(speed[b]),points(100*(speed[b]-fastest)),...scenarios.map(s=>pct(solidity[s][b])),pct(average(b)),pct(worst(b))]}));
-    makeTable($('decision-ratio-table'),['Bridges','Tierras artefacto restantes','Desarrollo T2–T3','Δ vs. más rápido',...scenarios.map(s=>shortNames[s]),'Media hates','Peor hate'],ratioRows);
+    const wilson=(successes,n)=>{
+      if (!n) return [0,0];
+      const z=1.95996398454,p=successes/n,z2=z*z,den=1+z2/n;
+      const mid=(p+z2/(2*n))/den,half=z*Math.sqrt(p*(1-p)/n+z2/(4*n*n))/den;
+      return [Math.max(0,mid-half),Math.min(1,mid+half)];
+    };
+    const pointsData=bridges.map(b=>{
+      const cells=modes.map(mode=>get(b,mode,'none'));
+      const rates=cells.map(c=>c.metrics.development_t2_t3.p),speed=rates.reduce((sum,p)=>sum+p,0)/rates.length;
+      const n=Math.min(...cells.map(c=>c.n)),interval=wilson(speed*n,n);
+      return {bridges:b,speed,low:interval[0],high:interval[1],solidity:100*(b+state.citadels)/19*(1-state.decisionExile/100)};
+    });
+    const selected=pointsData.find(p=>p.bridges===state.selectedBridge);
     $('decision-boulders').value=state.decisionBoulders;$('decision-citadels').value=state.citadels;
-    $('decision-position').value=state.decisionPosition;$('decision-budget').value=state.decisionBudget;$('decision-criterion').value=state.decisionCriterion;
-    const criterion=state.decisionCriterion==='worst'?'peor caso':'promedio simple de los hates modelados';
-    $('decision-matrix-summary').textContent=`Con ${state.decisionBoulders} Boulder, ${state.citadels} Citadel y ${state.decisionPosition==='both'?'OTP/OTD al 50%':state.decisionPosition}, aceptar hasta ${state.decisionBudget} pp menos de desarrollo y optimizar el ${criterion} señala ${preferred.b} bridges. Su desarrollo T2–T3 sin hate es ${pct(speed[preferred.b])}; motor T6: media de hates ${pct(average(preferred.b))} y peor escenario ${pct(worst(preferred.b))}. El promedio pondera igual cada uno de los ${hates.length} perfiles; el criterio conservador mira el peor.`;
+    $('decision-position').value=state.decisionPosition;
+    $('decision-exile').value=state.decisionExile;$('decision-exile-value').textContent=`${state.decisionExile} %`;
+    const host=$('decision-scatter');host.replaceChildren();
+    const width=Math.max(620,Math.round(host.clientWidth)||820),height=430,pad={l:76,r:36,t:34,b:76};
+    const plotW=width-pad.l-pad.r,plotH=height-pad.t-pad.b;
+    const xmax=Math.max(10,Math.ceil((Math.max(...pointsData.map(p=>p.solidity))+5)/10)*10);
+    const yMin=Math.max(0,Math.floor((Math.min(...pointsData.map(p=>p.low))*100-4)/5)*5);
+    const yMax=Math.min(100,Math.ceil((Math.max(...pointsData.map(p=>p.high))*100+4)/5)*5);
+    const sx=v=>pad.l+plotW*v/xmax,sy=v=>pad.t+plotH*(1-(v*100-yMin)/(yMax-yMin));
+    const uid=`decision-scatter-title-${++chartId}`;
+    const svg=svgNode('svg',{viewBox:`0 0 ${width} ${height}`,role:'img','aria-labelledby':uid,class:'scatter-svg'});
+    svg.append(svgNode('title',{id:uid},'Rapidez frente a solidez según cantidad de bridges'));
+    svg.append(svgNode('desc',{},'Cada punto, seleccionable, muestra la probabilidad de desarrollo en turno dos y tres frente al índice estructural de tierras indestructibles.'));
+    for(let value=Math.ceil(yMin/5)*5;value<=yMax;value+=5){
+      const y=sy(value/100);svg.append(svgNode('line',{x1:pad.l,x2:width-pad.r,y1:y,y2:y,class:'grid-line'}));
+      svg.append(svgNode('text',{x:pad.l-12,y:y+4,'text-anchor':'end',class:'axis-label'},`${value} %`));
+    }
+    const xStep=xmax<=50?5:10;
+    for(let value=0;value<=xmax;value+=xStep){
+      const x=sx(value);svg.append(svgNode('line',{x1:x,x2:x,y1:pad.t,y2:height-pad.b,class:value===0?'baseline':'grid-line'}));
+      svg.append(svgNode('text',{x,y:height-pad.b+23,'text-anchor':'middle',class:'axis-label'},`${value} %`));
+    }
+    svg.append(svgNode('text',{x:pad.l+plotW/2,y:height-14,'text-anchor':'middle',class:'scatter-axis-title'},'Índice de solidez estructural'));
+    svg.append(svgNode('text',{x:20,y:pad.t+plotH/2,'text-anchor':'middle',class:'scatter-axis-title',transform:`rotate(-90 20 ${pad.t+plotH/2})`},'Rapidez · desarrollo T2 y T3 (%)'));
+    svg.append(svgNode('text',{x:pad.l,y:18,class:'scatter-axis-note'},`Eje vertical recortado: ${yMin}–${yMax} %`));
+    svg.append(svgNode('polyline',{points:pointsData.map(p=>`${sx(p.solidity)},${sy(p.speed)}`).join(' '),fill:'none',stroke:'#a7ada4','stroke-width':2,'stroke-dasharray':'5 5'}));
+    for(const [index,p] of pointsData.entries()){
+      const x=sx(p.solidity),y=sy(p.speed),active=p.bridges===state.selectedBridge,color=active?'#cb714f':'#267c72';
+      svg.append(svgNode('line',{x1:x,x2:x,y1:sy(p.low),y2:sy(p.high),stroke:color,'stroke-width':1.7}));
+      svg.append(svgNode('line',{x1:x-4,x2:x+4,y1:sy(p.low),y2:sy(p.low),stroke:color,'stroke-width':1.5}));
+      svg.append(svgNode('line',{x1:x-4,x2:x+4,y1:sy(p.high),y2:sy(p.high),stroke:color,'stroke-width':1.5}));
+      const circle=svgNode('circle',{cx:x,cy:y,r:active?7:5.5,fill:active?color:'#fffefb',stroke:color,'stroke-width':2.5,tabindex:0,role:'button',class:'scatter-point','aria-label':`${p.bridges} bridges · rapidez ${fmt(p.speed*100)} % · IC 95 % ${fmt(p.low*100)} a ${fmt(p.high*100)} % · solidez ${fmt(p.solidity)} %`,'aria-pressed':String(active)});
+      circle.append(svgNode('title',{},`${p.bridges} bridges: rapidez ${fmt(p.speed*100)} % [IC 95 % ${fmt(p.low*100)}–${fmt(p.high*100)}]; solidez ${fmt(p.solidity)} %`));
+      const choosePoint=()=>{state.selectedBridge=p.bridges;renderFinalDecision();updateURL();};
+      circle.addEventListener('click',choosePoint);circle.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();choosePoint();}});svg.append(circle);
+      const above=index%2===0,labelY=above?Math.max(pad.t+13,y-13):Math.min(height-pad.b-2,y+27);
+      const anchor=above?'start':'end',labelX=above?x+9:x-9;
+      const label=svgNode('text',{x:labelX,y:labelY,'text-anchor':anchor,class:`scatter-point-label${active?' selected':''}`});
+      label.append(svgNode('tspan',{x:labelX,dy:0},`${p.bridges} B`),svgNode('tspan',{x:labelX,dy:14},`${fmt(p.speed*100)} %`));svg.append(label);
+    }
+    host.append(svg);host.dataset.points=JSON.stringify(pointsData);
+    $('decision-scatter-summary').textContent=`Seleccionaste ${selected.bridges} bridges: rapidez ${pct(selected.speed)} [IC 95 % conservador ${fmt(selected.low*100)}–${fmt(selected.high*100)}] y solidez ${pct(selected.solidity/100)}. Con ${state.decisionExile} % de exilio (el resto, destrucción), el índice refleja la protección por indestructible. La línea une ratios vecinos; no es un ajuste predictivo.`;
     const C=globalThis.AffinityComposition;
     if (!state.weights.some(w=>w>0)) {
       $('decision-base-status').dataset.state='invalid';$('decision-base-status').textContent='Dale un peso mayor que cero al menos a un color para proponer una base.';
       $('decision-base-sources').replaceChildren();$('decision-bridge-list').replaceChildren();$('decision-mono-list').replaceChildren();
     } else {
-      const base=C.choose(state.weights,preferred.b,state.citadels);
+      const base=C.choose(state.weights,selected.bridges,state.citadels);
       $('decision-base-status').dataset.state='ready';
-      $('decision-base-status').textContent=`Base sugerida para ${preferred.b} bridges, ${state.citadels} Citadel y pesos ${state.weights.map(x=>fmt(x)).join(' / ')}. Búsqueda exacta de fuentes sobre ${integer(base.bases_evaluated)} bases posibles con ese ratio y esa cantidad de Citadel.`;
+      $('decision-base-status').textContent=`Composición para ${selected.bridges} bridges, ${state.citadels} Citadel y pesos W/U/B/R ${state.weights.map(x=>fmt(x)).join(' / ')}. Búsqueda exacta de fuentes sobre ${integer(base.bases_evaluated)} bases posibles.`;
       makeTable($('decision-base-sources'),['Color','Peso','Fuentes totales','Fuentes enderezadas','≥1 fuente en 7','≥1 fuente en 9'],C.colors.map((color,i)=>({values:[color,fmt(state.weights[i]),base.sources[i],base.untapped_sources[i],pct(base.natural_in_7[i]),pct(base.natural_in_9[i])]})));
       const landRows=entries=>entries.filter(([name])=>base.lands[name]).map(([name])=>({values:[base.lands[name],name]}));
       makeTable($('decision-bridge-list'),['Copias','Bridge'],landRows(C.bridges));
@@ -551,8 +581,7 @@
   $('decision-boulders').addEventListener('change',()=>{state.decisionBoulders=Number($('decision-boulders').value);renderFinalDecision();updateURL();});
   $('decision-citadels').addEventListener('change',()=>{state.citadels=Number($('decision-citadels').value);renderFinalDecision();renderWeights();renderStress();updateURL();});
   $('decision-position').addEventListener('change',()=>{state.decisionPosition=$('decision-position').value;renderFinalDecision();updateURL();});
-  $('decision-budget').addEventListener('change',()=>{state.decisionBudget=Number($('decision-budget').value);renderFinalDecision();updateURL();});
-  $('decision-criterion').addEventListener('change',()=>{state.decisionCriterion=$('decision-criterion').value;renderFinalDecision();updateURL();});
+  $('decision-exile').addEventListener('input',()=>{state.decisionExile=Number($('decision-exile').value);renderFinalDecision();updateURL();});
   document.querySelectorAll('a[href="#overview"]').forEach(link => link.addEventListener('click', event => { event.preventDefault(); activateTab('overview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }));
   addEventListener('hashchange', () => { const tab = location.hash.slice(1); if (['overview', 'decision', 'parts', 'composition', 'profiles', 'stress', 'method', 'documents'].includes(tab)) activateTab(tab); });
   let resizeTimer;

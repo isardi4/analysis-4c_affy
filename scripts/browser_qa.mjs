@@ -44,19 +44,25 @@ try {
   for (let i = 0; i < 100; i++) { ready = await evaluate('document.body?.dataset.ready === "true"'); if (ready) break; await delay(100); }
   assert(ready, 'Report did not initialize');
   assert.equal(await evaluate('document.querySelector("[role=tab][aria-selected=true]").dataset.tab'), 'decision');
-  assert.equal(await evaluate('document.querySelectorAll("#decision-matrix tbody tr").length'),7);
-  assert.equal(await evaluate('document.querySelectorAll("#decision-ratio-table tbody tr").length'),7);
+  assert.equal(await evaluate('document.querySelectorAll("#decision-scatter .scatter-point").length'),7);
+  assert.equal(await evaluate('JSON.parse(document.getElementById("decision-scatter").dataset.points).length'),7);
   assert.equal(await evaluate('document.getElementById("panel-decision").hidden'),false);
-  assert((await evaluate('document.getElementById("decision-matrix").innerText')).includes('Ancient Grudge'));
-  assert((await evaluate('document.getElementById("decision-matrix").innerText')).includes('Gleeful Sabotage'));
+  assert((await evaluate('document.getElementById("decision-scatter-summary").textContent')).includes('rapidez'));
   assert((await evaluate('document.getElementById("decision-base-status").textContent')).includes('Búsqueda exacta de fuentes'));
-  await evaluate('document.getElementById("decision-criterion").value="worst";document.getElementById("decision-criterion").dispatchEvent(new Event("change"))');
-  assert((await evaluate('document.getElementById("decision-matrix-summary").textContent')).includes('peor caso'));
+  await evaluate('document.querySelectorAll("#decision-scatter .scatter-point")[2].dispatchEvent(new MouseEvent("click",{bubbles:true}))');
+  assert((await evaluate('document.getElementById("decision-scatter-summary").textContent')).includes('Seleccionaste 8 bridges'));
+  await evaluate('document.getElementById("decision-exile").value="80";document.getElementById("decision-exile").dispatchEvent(new Event("input"))');
+  assert(Math.abs(await evaluate('JSON.parse(document.getElementById("decision-scatter").dataset.points).find(p=>p.bridges===8).solidity')-100*8/19*.2)<1e-8);
   await evaluate('document.getElementById("decision-citadels").value="2";document.getElementById("decision-citadels").dispatchEvent(new Event("change"))');
   assert((await evaluate('document.getElementById("decision-base-status").textContent')).includes('2 Citadel'));
   assert((await evaluate('document.getElementById("decision-mono-list").innerText')).includes('Darksteel Citadel'));
   assert.equal(await evaluate('Array.from(document.querySelectorAll("#decision-bridge-list tbody tr td:first-child,#decision-mono-list tbody tr td:first-child")).reduce((n,x)=>n+Number(x.textContent),0)'),19);
-  await evaluate('document.getElementById("decision-citadels").value="0";document.getElementById("decision-citadels").dispatchEvent(new Event("change"));document.getElementById("decision-criterion").value="average";document.getElementById("decision-criterion").dispatchEvent(new Event("change"))');
+  assert(Math.abs(await evaluate('JSON.parse(document.getElementById("decision-scatter").dataset.points).find(p=>p.bridges===8).solidity')-100*10/19*.2)<1e-8);
+  await evaluate('document.getElementById("decision-position").value="OTP";document.getElementById("decision-position").dispatchEvent(new Event("change"))');
+  const otpSpeed=await evaluate('JSON.parse(document.getElementById("decision-scatter").dataset.points).find(p=>p.bridges===8).speed');
+  const expectedOtpSpeed=await evaluate('window.AFFINITY_DATA.boulder_hate.cells.find(c=>c.bridges===8&&c.boulders===4&&c.mode==="OTP"&&c.scenario==="none"&&c.citadels===2).metrics.development_t2_t3.p');
+  assert(Math.abs(otpSpeed-expectedOtpSpeed)<1e-12);
+  await evaluate('document.getElementById("decision-citadels").value="0";document.getElementById("decision-citadels").dispatchEvent(new Event("change"));document.getElementById("decision-position").value="both";document.getElementById("decision-position").dispatchEvent(new Event("change"));document.getElementById("decision-exile").value="50";document.getElementById("decision-exile").dispatchEvent(new Event("input"))');
   const decisionShot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});
   await writeFile(`${artifacts}/final-decision-desktop.png`,Buffer.from(decisionShot.data,'base64'));
   await evaluate('document.querySelector("[data-tab=stress]").click()');
@@ -165,7 +171,7 @@ try {
   shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
   await writeFile(`${artifacts}/mobile.png`, Buffer.from(shot.data, 'base64'));
   assert.equal(errors.length, 0, `Browser errors: ${JSON.stringify(errors)}`);
-  console.log('Browser QA passed: tabs, OTP/OTD numbers, land ratios, policy graphs, documents, downloads and mobile layout.');
+  console.log('Browser QA passed: tabs, speed-solidity scatter, OTP/OTD values, solidity assumptions, land ratios, documents, downloads and mobile layout.');
   console.log(`Screenshots: ${artifacts}/desktop.png and mobile.png`);
 } finally {
   if (ws) ws.close();
