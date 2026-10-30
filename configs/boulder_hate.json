@@ -13,12 +13,16 @@
     "masked": {"label": "Masked Vandal · rival T2", "opponent_turns": [2]},
     "dust": {"label": "Dust to Dust · rival T3", "opponent_turns": [3]},
     "gorilla": {"label": "Gorilla Shaman · rival T2–T4", "opponent_turns": [2, 3, 4]},
-    "overload": {"label": "Vandalblast sobrecargado · rival T5", "opponent_turns": [5]}
+    "overload": {"label": "Vandalblast sobrecargado · rival T5", "opponent_turns": [5]},
+    "ancient_grudge": {"label": "Ancient Grudge · rival T2 y T4", "opponent_turns": [2, 4]},
+    "gleeful": {"label": "Gleeful Sabotage · rival T3", "opponent_turns": [3]}
   },
   "target_policy": "Public board only; mana denial first, then Boulder, then threats/other artifacts. No future draws or private hand access.",
   "assumptions": [
     "Conditional stress tests: opponent has the card, colors, mana and other prerequisites. No empirical matchup frequencies.",
     "Masked Vandal has a creature to exile from the opponent graveyard. Dust requires two distinct artifacts.",
+    "Ancient Grudge resolves as two single-target destructions, at opponent T2 and flashback T4; assume both colors and mana are available.",
+    "Gleeful Sabotage resolves at opponent T3 with two creatures available to conspire, allowing two distinct artifact targets.",
     "Gorilla is on the opponent battlefield and survives: total mana budgets 2,3,4 on opponent turns 2,3,4; each activation costs 2*mana_value+1 and targets noncreature artifacts only.",
     "No player responses, floating mana, counterspells, removal of Gorilla, graveyard interaction in response, combat or damage model. This measures exposure and recovery, not match win rate.",
     "Opponent Tn happens before player Tn on OTD, and between player Tn and T(n+1) on OTP.",
@@ -28,6 +32,8 @@
     "Masked Vandal": "https://magic.wizards.com/en/news/feature/kaldheim-release-notes-2021-01-22",
     "Vandalblast": "https://magic.wizards.com/en/news/feature/commander-masters-release-notes",
     "Gorilla Shaman": "https://mtg.wtf/card?q=Gorilla+Shaman",
-    "Dust to Dust": "https://mtg.wtf/card?q=Dust+to+Dust"
+    "Dust to Dust": "https://mtg.wtf/card?q=Dust+to+Dust",
+    "Ancient Grudge": "https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Ancient%20Grudge",
+    "Gleeful Sabotage": "https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Gleeful%20Sabotage"
   }
 }

@@ -100,6 +100,13 @@ class StressGame(Game):
                 targets=[max(vulnerable,key=self.priority)]
         elif self.scenario=='overload':
             targets=[p for p in artifacts if not self.indestructible(p)]
+        elif self.scenario=='ancient_grudge':
+            vulnerable=[p for p in artifacts if not self.indestructible(p)]
+            if vulnerable:
+                targets=[max(vulnerable,key=self.priority)]
+        elif self.scenario=='gleeful':
+            vulnerable=[p for p in artifacts if not self.indestructible(p)]
+            targets=sorted(vulnerable,key=self.priority,reverse=True)[:2]
         elif self.scenario=='gorilla':
             budget=enemy_turn
             # Each activation resolves separately. Creature artifacts are illegal.
@@ -242,7 +249,7 @@ def main():
                                     'comparison':label,'metric':metric,**difference(raw[k],raw[ref],metric)})
     out=ROOT/'results/boulder_hate';out.mkdir(exist_ok=True)
     paths=['src/boulder_hate.py','src/color_bridge_study.py','configs/boulder_hate.json','configs/structural_stages.json','data/reference_deck.json']
-    data={'version':'1.0','date':'2026-10-29','config':CONFIG,'bridges':list(BRIDGE_COUNTS),
+    data={'version':'1.1','date':'2026-10-29','config':CONFIG,'bridges':list(BRIDGE_COUNTS),
           'total_trials':len(cells)*CONFIG['trials_per_cell'],'cells':cells,'candidates':bases,
           'paired_comparisons':comparisons,'elapsed_seconds':round(time.perf_counter()-began,2),
           'nonlands':{str(b):dict(Counter(spell_list(b))) for b in CONFIG['boulders']},

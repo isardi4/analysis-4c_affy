@@ -1,6 +1,6 @@
 # Boulder y hate: rango 6–12 bridges
 
-672.000 intentos; 336 celdas × 2.000. OTP/OTD separados, horizonte T1–T6. Piloto de escenarios condicionales; no tasa de victoria ni frecuencias observadas del metajuego.
+896.000 intentos; 448 celdas × 2.000. OTP/OTD separados, horizonte T1–T6. Piloto de escenarios condicionales; no tasa de victoria ni frecuencias observadas del metajuego.
 
 ## Qué incluía ya el estudio anterior
 
@@ -24,6 +24,8 @@ Perfiles predefinidos ya incluía cuatro Boulder, coste 1, scry 2, filtrado 1 + 
 | Dust to Dust | T3 | Exilia dos artefactos distintos; requiere ambos objetivos |
 | Gorilla Shaman | T2, T3 y T4 | Presente y sin remover; presupuestos totales 2/3/4 manás; activaciones cuestan 2×valor de maná+1, solo artefactos no criatura |
 | Vandalblast sobrecargado | T5 | Destruye todos los artefactos vulnerables; conserva bridges/Citadel |
+| Ancient Grudge | T2 y T4 | Dos destrucciones puntuales, segunda con flashback; colores y maná disponibles |
+| Gleeful Sabotage | T3 | Destruye dos artefactos vulnerables; se asume conspire disponible |
 
 El Tn rival sucede antes de nuestro Tn en OTD, y entre nuestro Tn y T(n+1) en OTP. Por eso el barrido llega a T6: permite observar recuperación tras Vandalblast sobrecargado también en OTP. No se adelanta la sobrecarga a T3.
 
@@ -91,23 +93,6 @@ Desarrollar un hechizo en T2 y T3 mide velocidad real de las jugadas. Poder paga
 - 6 bridges / 4 Boulder / 0 Citadel, sin hate: desarrollo T2–T3 76.83%; diagnóstico de motor T6 88.53%. Media OTP/OTD con igual peso.
 - 12 bridges / 4 Boulder / 0 Citadel, sin hate: desarrollo T2–T3 71.38%; diagnóstico de motor T6 91.72%. Media OTP/OTD con igual peso.
 
-## Matriz: límite de velocidad cedida por robustez
-
-La matriz fija una regla interpretable: primero se define cuánto desarrollo T2–T3 se acepta perder, en puntos porcentuales frente al ratio más rápido; después se elige el número de bridges con mayor tasa estimada de motor y cuatro colores en T6 dentro de ese límite. No se inventa un puntaje que sume velocidad y solidez. Cada columna es un escenario puro (q=100% para ese hate). La referencia está fijada en cuatro Boulder, 0 Citadel y media simple OTP/OTD; el HTML permite cambiar Boulder, Citadel y posición, además de añadir una mezcla hipotética q.
-
-| Velocidad cedida | Sin hate · motor | Vandalblast | Masked Vandal | Dust to Dust | Gorilla Shaman | Vandalblast overload |
-| ---: | --- | --- | --- | --- | --- | --- |
-| ≤ 0 pp | 6 bridges · 88.53% | 6 bridges · 79.57% | 6 bridges · 74.63% | 6 bridges · 60.02% | 6 bridges · 35.80% | 6 bridges · 25.82% |
-| ≤ 1 pp | 7 bridges · 89.78% | 7 bridges · 82.17% | 7 bridges · 75.62% | 7 bridges · 60.05% | 7 bridges · 41.17% | 7 bridges · 31.90% |
-| ≤ 2 pp | 8 bridges · 89.80% | 8 bridges · 82.93% | 8 bridges · 75.65% | 7 bridges · 60.05% | 8 bridges · 43.88% | 8 bridges · 35.98% |
-| ≤ 3 pp | 10 bridges · 90.18% | 10 bridges · 84.30% | 10 bridges · 76.50% | 10 bridges · 61.08% | 10 bridges · 51.50% | 10 bridges · 44.67% |
-| ≤ 4 pp | 11 bridges · 90.70% | 11 bridges · 85.10% | 10 bridges · 76.50% | 11 bridges · 61.15% | 11 bridges · 56.05% | 11 bridges · 50.37% |
-| ≤ 5 pp | 11 bridges · 90.70% | 11 bridges · 85.10% | 10 bridges · 76.50% | 11 bridges · 61.15% | 11 bridges · 56.05% | 11 bridges · 50.37% |
-| ≤ 6 pp | 12 bridges · 91.72% | 12 bridges · 85.50% | 12 bridges · 77.45% | 11 bridges · 61.15% | 12 bridges · 57.40% | 12 bridges · 52.95% |
-
-“≤ 2 pp” no significa que dos puntos sean universalmente aceptables: es una referencia ajustable para ver qué cambia. La columna sin hate optimiza capacidad de pagos, no resistencia. Destrucción y exilio producen ganadores diferentes. Estas son estimaciones puntuales de 2.000 intentos por celda; los resultados cercanos no distinguen con seguridad los ratios.
-
-
 ## Resistencia por escenario
 
 La mejor estimación puntual del diagnóstico de motor T6 se muestra por escenario. Se da igual peso a OTP y OTD para esta tabla descriptiva; no se presupone frecuencia de cada tipo de hate.
@@ -126,6 +111,10 @@ La mejor estimación puntual del diagnóstico de motor T6 se muestra por escenar
 | Gorilla Shaman · rival T2–T4 | 2 | 12 bridges / 4 Boulder | 57.55% |
 | Vandalblast sobrecargado · rival T5 | 0 | 12 bridges / 4 Boulder | 52.95% |
 | Vandalblast sobrecargado · rival T5 | 2 | 12 bridges / 4 Boulder | 54.75% |
+| Ancient Grudge · rival T2 y T4 | 0 | 12 bridges / 4 Boulder | 73.50% |
+| Ancient Grudge · rival T2 y T4 | 2 | 11 bridges / 4 Boulder | 71.47% |
+| Gleeful Sabotage · rival T3 | 0 | 12 bridges / 4 Boulder | 75.25% |
+| Gleeful Sabotage · rival T3 | 2 | 11 bridges / 4 Boulder | 72.80% |
 
 ## Ponderar hate sin inventar frecuencias
 
@@ -141,6 +130,8 @@ La cantidad óptima no está certificada: solo se comparan estas bases represent
 - [Vandalblast](https://magic.wizards.com/en/news/feature/commander-masters-release-notes)
 - [Gorilla Shaman](https://mtg.wtf/card?q=Gorilla+Shaman)
 - [Dust to Dust](https://mtg.wtf/card?q=Dust+to+Dust)
+- [Ancient Grudge](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Ancient%20Grudge)
+- [Gleeful Sabotage](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Gleeful%20Sabotage)
 
 ```sh
 python3 -m unittest discover -s tests -v

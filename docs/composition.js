@@ -25,20 +25,22 @@ globalThis.AffinityComposition = (() => {
   }
   const hit7 = Array.from({length:20},(_,s)=>hit(s,7));
   const hit9 = Array.from({length:20},(_,s)=>hit(s,9));
-  function universe(count) {
-    if (!cache.has(count)) {
-      cache.set(count, {
+  function universe(count,citadels) {
+    const key=`${count}/${citadels}`;
+    if (!cache.has(key)) {
+      cache.set(key, {
         bv: bounded(count,6).map(v=>({v,s:colors.map((_,c)=>v.reduce((sum,n,i)=>sum+n*bridges[i][1][c],0))})),
-        uv: bounded(19-count,4),
+        uv: bounded(19-count-citadels,4),
       });
     }
-    return cache.get(count);
+    return cache.get(key);
   }
-  function choose(weights, count=10) {
+  function choose(weights, count=10, citadels=0) {
     if (!Number.isInteger(count) || !counts.includes(count)) throw Error(`Bridges debe estar entre ${Math.min(...counts)} y ${Math.max(...counts)}.`);
+    if (!Number.isInteger(citadels) || citadels<0 || citadels>4 || count+citadels>19) throw Error('Citadel debe estar entre cero y cuatro.');
     if (!Array.isArray(weights) || weights.length!==4 || weights.some(w=>!Number.isFinite(w)||w<0) || !weights.some(w=>w>0)) throw Error('Asigná al menos un peso mayor que cero.');
     const scale = Math.max(...weights), w = weights.map(x=>x/scale);
-    const {bv,uv} = universe(count);
+    const {bv,uv} = universe(count,citadels);
     const early = uv.map(v=>v.reduce((s,n,c)=>s+w[c]*hit7[n],0));
     const eps=1e-12;
     let best, score=-Infinity, secondary=-Infinity, ties=0;
@@ -52,13 +54,13 @@ globalThis.AffinityComposition = (() => {
         secondary=early[j]; best={bv:bridge.v,uv:u,sources:s};
       }
     }
-    const lands=Object.fromEntries([...bridges.map(([name],i)=>[name,best.bv[i]]),...monos.map((name,i)=>[name,best.uv[i]])].filter(([,n])=>n));
-    return {model:'natural-sources-v1',weights:[...weights],bridges:count,untapped:19-count,
+    const lands=Object.fromEntries([...bridges.map(([name],i)=>[name,best.bv[i]]),...monos.map((name,i)=>[name,best.uv[i]]),['Darksteel Citadel',citadels]].filter(([,n])=>n));
+    return {model:'natural-sources-v1',weights:[...weights],bridges:count,citadels,untapped:19-count,
       lands,sources:best.sources,untapped_sources:best.uv,
       natural_in_7:best.sources.map(s=>hit7[s]),natural_in_9:best.sources.map(s=>hit9[s]),
       untapped_in_7:best.uv.map(s=>hit7[s]),score,secondary_score:secondary,
       bases_evaluated:bv.length*uv.length,primary_ties:ties,
-      scope:'Fuentes naturales; sin mulligans, Boulder, entrada girada ni simulación de partidas.',
+      scope:'Fuentes naturales; sin mulligans, Boulder, entrada girada ni simulación de partidas. Citadel no agrega fuentes de color.',
       tie_break:'Mayor cobertura ponderada de fuentes enderezadas en siete; luego orden estable de cartas.'};
   }
   return {choose,hit,colors,bridges,monos,counts};

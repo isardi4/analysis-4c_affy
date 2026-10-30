@@ -2,7 +2,7 @@ from collections import Counter
 import random
 import unittest
 from src.color_bridge_study import Game,Permanent,BOULDER,RELIC,BOMB,FAMILIAR,starting_hand
-from src.boulder_hate import StressGame,spell_list,with_citadels
+from src.boulder_hate import CONFIG,StressGame,spell_list,with_citadels
 
 
 class HateTests(unittest.TestCase):
@@ -26,6 +26,22 @@ class HateTests(unittest.TestCase):
         g=self.board([BOULDER],'dust');g.attack(3)
         self.assertEqual(g.count(BOULDER),1)
         self.assertFalse(g.hits[0]['targets'])
+
+    def test_ancient_grudge_repeats_targeted_destruction_but_not_bridges(self):
+        g=self.board(['Mistvault Bridge','Darksteel Citadel','Ancient Den','Seat of the Synod'],'ancient_grudge')
+        g.attack(2)
+        self.assertEqual(g.hits[-1]['lands_lost'],1)
+        self.assertEqual(g.count('Mistvault Bridge'),1)
+        self.assertEqual(g.count('Darksteel Citadel'),1)
+        g.turn=4;g.attack(4)
+        self.assertEqual(g.hits[-1]['lands_lost'],1)
+        self.assertCountEqual([p.name for p in g.board],['Mistvault Bridge','Darksteel Citadel'])
+
+    def test_gleeful_sabotage_destroys_two_vulnerable_artifacts(self):
+        g=self.board(['Mistvault Bridge','Darksteel Citadel','Ancient Den','Seat of the Synod'],'gleeful')
+        g.attack(3)
+        self.assertEqual(g.hits[-1]['lands_lost'],2)
+        self.assertCountEqual([p.name for p in g.board],['Mistvault Bridge','Darksteel Citadel'])
 
     def test_gorilla_budget_and_noncreatures(self):
         g=self.board(['Ancient Den','Seat of the Synod',BOULDER,FAMILIAR],'gorilla');g.attack(2)
@@ -86,7 +102,7 @@ class HateTests(unittest.TestCase):
 
     def test_card_conservation_with_exile(self):
         deck=['Seat of the Synod']*4+['Vault of Whispers']*4+['Razortide Bridge']*4+['Mistvault Bridge']*4+['Great Furnace']*3+spell_list(4)
-        for scenario in ('vandalblast','masked','dust','gorilla','overload'):
+        for scenario in CONFIG['scenarios']:
             for seed in range(10):
                 hand,library,_=starting_hand(deck,random.Random(seed))
                 if hand:

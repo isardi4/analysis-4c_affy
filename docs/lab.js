@@ -23,9 +23,10 @@
     decisionBoulders: params.get('decision_boulders') === '3' ? 3 : 4,
     decisionPosition: ['OTP','OTD'].includes(params.get('decision_position')) ? params.get('decision_position') : 'both',
     decisionBudget: params.has('decision_budget') && Number.isInteger(Number(params.get('decision_budget'))) ? Math.max(0,Math.min(6,Number(params.get('decision_budget')))) : 2,
+    decisionCriterion: params.get('decision_criterion') === 'worst' ? 'worst' : 'average',
     stressTurn: params.get('turn') === '4' ? 4 : 6,
     frequency: Number.isFinite(Number(params.get('frequency'))) ? Math.max(0,Math.min(100,Math.round(Number(params.get('frequency'))/5)*5)) : 0,
-    tab: ['overview', 'parts', 'composition', 'profiles', 'stress', 'method', 'documents'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'stress',
+    tab: ['overview', 'decision', 'parts', 'composition', 'profiles', 'stress', 'method', 'documents'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'decision',
   };
   let chartId = 0;
   const cell = (part, lands, mode, bridges = 0, policy = 'untapped_first') => {
@@ -158,6 +159,7 @@
     p.set('weights',state.weights.join(',')); p.set('bridges',state.compositionBridges);
     p.set('hate',state.scenario);p.set('citadels',state.citadels);p.set('turn',state.stressTurn);p.set('frequency',state.frequency);
     p.set('decision_boulders',state.decisionBoulders);p.set('decision_position',state.decisionPosition);p.set('decision_budget',state.decisionBudget);
+    p.set('decision_criterion',state.decisionCriterion);
     history.replaceState(null, '', `${location.pathname}?${p}#${state.tab}`);
   }
   function activateTab(name, focus = false) {
@@ -171,6 +173,7 @@
     if (name === 'parts') { renderFixedCharts(); renderPartOne(); renderPartTwo(); }
     if (name === 'profiles') renderProfiles();
     if (name === 'composition') renderWeights();
+    if (name === 'decision') renderFinalDecision();
     if (name === 'stress') renderStress();
     updateURL();
   }
@@ -349,9 +352,9 @@
       return {values:[b,points(100*d.difference),`[${d.ci95.map(x=>fmt(100*x)).join('; ')}] pp`,d.ci95[0]<=0 && d.ci95[1]>=0?'Incluye cero':d.difference>0?'Favorece 4':'Favorece 3']};
     }));
     makeTable($('stress-bases-table'),['Bridges','Fuentes W/U/B/R','Tierras exactas'],S.candidates.filter(c=>c.citadels===state.citadels).map(c=>({values:[c.bridges,Object.values(c.sources).join(' / '),Object.entries(c.lands).map(([name,n])=>`${n} ${name}`).join(' · ')]})));
-    renderDecisionMatrix();
+    renderFinalDecision();
   }
-  function renderDecisionMatrix() {
+  function renderFinalDecision() {
     const S=D.boulder_hate;
     const modes=state.decisionPosition==='both'?['OTP','OTD']:[state.decisionPosition];
     const get=(b,mode,scenario)=>S.cells.find(c=>c.bridges===b && c.boulders===state.decisionBoulders && c.mode===mode && c.scenario===scenario && c.citadels===state.citadels);
@@ -359,24 +362,43 @@
     const bridges=S.bridges;
     const speed=Object.fromEntries(bridges.map(b=>[b,meanRate(b,'none','development_t2_t3')]));
     const fastest=Math.max(...Object.values(speed));
-    const q=state.scenario==='none'?0:state.frequency/100;
     const scenarios=Object.keys(S.config.scenarios);
-    const mixedRate=b=>(1-q)*meanRate(b,'none','suite_t6')+q*meanRate(b,state.scenario,'suite_t6');
     const solidity=Object.fromEntries(scenarios.map(s=>[s,Object.fromEntries(bridges.map(b=>[b,meanRate(b,s,'suite_t6')]))]));
+    const hates=scenarios.filter(s=>s!=='none');
+    const average=b=>hates.reduce((sum,s)=>sum+solidity[s][b],0)/hates.length;
+    const worst=b=>Math.min(...hates.map(s=>solidity[s][b]));
+    const score=state.decisionCriterion==='worst'?worst:average;
     const budgets=[0,1,2,3,4,5,6];
-    const choose=(score,budget)=>bridges.map(b=>({b,score:score(b)})).filter(x=>speed[x.b]>=fastest-budget/100-1e-10)
-      .sort((a,b)=>b.score-a.score || speed[b.b]-speed[a.b] || a.b-b.b)[0];
-    const shortNames={none:'Sin hate · motor',vandalblast:'Vandalblast',masked:'Masked Vandal',dust:'Dust to Dust',gorilla:'Gorilla Shaman',overload:'Vandalblast overload'};
-    const cols=[...scenarios.map(s=>({key:s,label:shortNames[s],score:b=>solidity[s][b]})),
-      {key:'mix',label:`Tu mezcla · q ${fmt(100*q,0)}%`,score:mixedRate}];
-    makeTable($('decision-matrix'),['Velocidad cedida','Sin hate','Vandalblast','Masked Vandal','Dust to Dust','Gorilla','Overload','Mezcla q'],budgets.map(budget=>({values:[`≤ ${budget} pp`,...cols.map(col=>{
-      const best=choose(col.score,budget);return `${best.b} B · ${pct(best.score)}`;
+    const choose=(objective,budget)=>bridges.map(b=>({b,value:objective(b)})).filter(x=>speed[x.b]>=fastest-budget/100-1e-10)
+      .sort((a,b)=>b.value-a.value || speed[b.b]-speed[a.b] || a.b-b.b)[0];
+    const shortNames={none:'Sin hate',vandalblast:'Vandalblast · puntual',masked:'Masked Vandal · exilio 1',dust:'Dust to Dust · exilio 2',gorilla:'Gorilla Shaman · repetido',overload:'Vandalblast · masivo',ancient_grudge:'Ancient Grudge · dos turnos',gleeful:'Gleeful Sabotage · dos objetivos'};
+    const objectives=[...scenarios.map(s=>({label:shortNames[s],fn:b=>solidity[s][b]})),
+      {label:`Media de ${hates.length} hates`,fn:average},{label:'Peor hate',fn:worst},
+      {label:state.decisionCriterion==='worst'?'Criterio actual · peor caso':'Criterio actual · promedio',fn:score}];
+    makeTable($('decision-matrix'),['Desarrollo cedido',...objectives.map(o=>o.label)],budgets.map(budget=>({values:[`≤ ${budget} pp`,...objectives.map(o=>{
+      const best=choose(o.fn,budget);return `${best.b} B · ${pct(best.value)}`;
     })]})));
-    const rows=bridges.map(b=>({values:[b,`${19-b} artefacto${19-b===1?'':'s'} enderezado${19-b===1?'':'s'}`,pct(speed[b]),points(100*(speed[b]-fastest)),pct(solidity[state.scenario][b]),pct(mixedRate(b))]}));
-    makeTable($('decision-ratio-table'),['Bridges','Tierras artefacto','Desarrollo T2–T3 · sin hate','Δ vs. más rápido','Motor T6 · escenario elegido','Motor T6 · mezcla q'],rows);
-    const preferred=choose(mixedRate,state.decisionBudget);
-    $('decision-boulders').value=state.decisionBoulders;$('decision-position').value=state.decisionPosition;$('decision-budget').value=state.decisionBudget;
-    $('decision-matrix-summary').textContent=`Con ${state.decisionBoulders} Boulder, ${state.citadels} Citadel y ${state.decisionPosition==='both'?'OTP/OTD al 50%':state.decisionPosition}, aceptar hasta ${state.decisionBudget} pp menos de desarrollo elige ${preferred.b} bridges: ${pct(speed[preferred.b])} de desarrollo sin hate y ${pct(preferred.score)} de motor T6 bajo la mezcla actual. A q=0, esa última cifra también es sin hate. El resultado cambia al mover el límite, el escenario o q; no hay una cantidad única óptima sin fijar cuánto valorás esos intercambios.`;
+    const preferred=choose(score,state.decisionBudget);
+    const ratioRows=bridges.map(b=>({active:b===preferred.b,values:[b,19-b,pct(speed[b]),points(100*(speed[b]-fastest)),...scenarios.map(s=>pct(solidity[s][b])),pct(average(b)),pct(worst(b))]}));
+    makeTable($('decision-ratio-table'),['Bridges','Tierras artefacto restantes','Desarrollo T2–T3','Δ vs. más rápido',...scenarios.map(s=>shortNames[s]),'Media hates','Peor hate'],ratioRows);
+    $('decision-boulders').value=state.decisionBoulders;$('decision-citadels').value=state.citadels;
+    $('decision-position').value=state.decisionPosition;$('decision-budget').value=state.decisionBudget;$('decision-criterion').value=state.decisionCriterion;
+    const criterion=state.decisionCriterion==='worst'?'peor caso':'promedio simple de los hates modelados';
+    $('decision-matrix-summary').textContent=`Con ${state.decisionBoulders} Boulder, ${state.citadels} Citadel y ${state.decisionPosition==='both'?'OTP/OTD al 50%':state.decisionPosition}, aceptar hasta ${state.decisionBudget} pp menos de desarrollo y optimizar el ${criterion} señala ${preferred.b} bridges. Su desarrollo T2–T3 sin hate es ${pct(speed[preferred.b])}; motor T6: media de hates ${pct(average(preferred.b))} y peor escenario ${pct(worst(preferred.b))}. El promedio pondera igual cada uno de los ${hates.length} perfiles; el criterio conservador mira el peor.`;
+    const C=globalThis.AffinityComposition;
+    if (!state.weights.some(w=>w>0)) {
+      $('decision-base-status').dataset.state='invalid';$('decision-base-status').textContent='Dale un peso mayor que cero al menos a un color para proponer una base.';
+      $('decision-base-sources').replaceChildren();$('decision-bridge-list').replaceChildren();$('decision-mono-list').replaceChildren();
+    } else {
+      const base=C.choose(state.weights,preferred.b,state.citadels);
+      $('decision-base-status').dataset.state='ready';
+      $('decision-base-status').textContent=`Base sugerida para ${preferred.b} bridges, ${state.citadels} Citadel y pesos ${state.weights.map(x=>fmt(x)).join(' / ')}. Búsqueda exacta de fuentes sobre ${integer(base.bases_evaluated)} bases posibles con ese ratio y esa cantidad de Citadel.`;
+      makeTable($('decision-base-sources'),['Color','Peso','Fuentes totales','Fuentes enderezadas','≥1 fuente en 7','≥1 fuente en 9'],C.colors.map((color,i)=>({values:[color,fmt(state.weights[i]),base.sources[i],base.untapped_sources[i],pct(base.natural_in_7[i]),pct(base.natural_in_9[i])]})));
+      const landRows=entries=>entries.filter(([name])=>base.lands[name]).map(([name])=>({values:[base.lands[name],name]}));
+      makeTable($('decision-bridge-list'),['Copias','Bridge'],landRows(C.bridges));
+      makeTable($('decision-mono-list'),['Copias','Tierra artefacto'],landRows([...C.monos.map(name=>[name]),['Darksteel Citadel']]));
+    }
+    C.colors.forEach((color,i)=>{$(`final-weight-${color}`).value=state.weights[i];$(`final-weight-value-${color}`).textContent=fmt(state.weights[i]);});
   }
   let proposedBase;
   const weightBaselines = new Map();
@@ -392,14 +414,15 @@
       $('weight-download').disabled=true;
       return;
     }
-    proposedBase=C.choose(state.weights,state.compositionBridges);
-    if (!weightBaselines.has(state.compositionBridges)) weightBaselines.set(state.compositionBridges,C.choose([1,1,1,1],state.compositionBridges));
-    const baseline=weightBaselines.get(state.compositionBridges);
+    proposedBase=C.choose(state.weights,state.compositionBridges,state.citadels);
+    if (!weightBaselines.has(`${state.compositionBridges}/${state.citadels}`)) weightBaselines.set(`${state.compositionBridges}/${state.citadels}`,C.choose([1,1,1,1],state.compositionBridges,state.citadels));
+    const baseline=weightBaselines.get(`${state.compositionBridges}/${state.citadels}`);
     const names=['Blanco','Azul','Negro','Rojo'];
     $('weight-result').hidden=false;
     $('weight-download').disabled=false;
     $('weight-status').dataset.state='ready';
-    $('weight-status').textContent=`Una base orientativa entre ${integer(proposedBase.bases_evaluated)} composiciones: ${proposedBase.bridges} bridges + ${proposedBase.untapped} enderezadas. ${integer(proposedBase.primary_ties)} bases empatan en el objetivo de fuentes naturales; se aplica el desempate explicado abajo.`;
+    $('weight-citadels').value=state.citadels;
+    $('weight-status').textContent=`Una base orientativa entre ${integer(proposedBase.bases_evaluated)} composiciones: ${proposedBase.bridges} bridges + ${state.citadels} Citadel + ${proposedBase.untapped-state.citadels} tierras artefacto enderezadas. ${integer(proposedBase.primary_ties)} bases empatan en el objetivo de fuentes naturales; se aplica el desempate explicado abajo.`;
     $('weight-result').dataset.sources=JSON.stringify(proposedBase.sources);
     makeTable($('weight-sources'),['Color','Peso','Fuentes naturales','Enderezadas','Cambio vs. todos en 1','≥1 natural en 7 cartas','≥1 natural en 9 cartas'],C.colors.map((c,i)=>{
       const delta=proposedBase.sources[i]-baseline.sources[i];
@@ -407,7 +430,7 @@
     }));
     const landRows = entries=>entries.filter(([name])=>proposedBase.lands[name]).map(([name])=>({values:[proposedBase.lands[name],name]}));
     makeTable($('weight-bridge-list'),['Copias','Tierra'],landRows(C.bridges));
-    makeTable($('weight-mono-list'),['Copias','Tierra'],landRows(C.monos.map(name=>[name])));
+    makeTable($('weight-mono-list'),['Copias','Tierra artefacto'],landRows([...C.monos.map(name=>[name]),['Darksteel Citadel']]));
   }
   function safeSourceURL(href, documentPath) {
     if (/^https?:\/\//i.test(href)) return href;
@@ -503,32 +526,39 @@
   $('profile-select').addEventListener('change', () => { state.profile = $('profile-select').value; renderProfiles(); updateURL(); });
   document.querySelectorAll('[data-weight]').forEach(input=>input.addEventListener('input',()=>{
     state.weights[globalThis.AffinityComposition.colors.indexOf(input.dataset.weight)]=Number(input.value);
-    renderWeights(); updateURL();
+    renderWeights();renderFinalDecision();updateURL();
+  }));
+  document.querySelectorAll('[data-final-weight]').forEach(input=>input.addEventListener('input',()=>{
+    state.weights[globalThis.AffinityComposition.colors.indexOf(input.dataset.finalWeight)]=Number(input.value);
+    renderWeights();renderFinalDecision();updateURL();
   }));
   globalThis.AffinityComposition.counts.forEach(n=>{const option=node('option','',String(n));option.value=n;$('weight-bridges').append(option);});
   $('weight-bridges').addEventListener('change',()=>{state.compositionBridges=Number($('weight-bridges').value);renderWeights();updateURL();});
-  $('weight-reset').addEventListener('click',()=>{state.weights=[1,1,1,1];renderWeights();updateURL();});
+  $('weight-citadels').addEventListener('change',()=>{state.citadels=Number($('weight-citadels').value);renderWeights();renderFinalDecision();renderStress();updateURL();});
+  $('weight-reset').addEventListener('click',()=>{state.weights=[1,1,1,1];renderWeights();renderFinalDecision();updateURL();});
   $('weight-download').addEventListener('click',()=>{
     if (!proposedBase) return;
     const exported={...proposedBase,deck_size:60,land_count:19,boulders:4,game_simulated:false};
     const url=URL.createObjectURL(new Blob([JSON.stringify(exported,null,2)+'\n'],{type:'application/json'}));
-    const link=node('a');link.href=url;link.download=`base-${state.compositionBridges}bridges-WUBR-${state.weights.join('-')}.json`;
+    const link=node('a');link.href=url;link.download=`base-${state.compositionBridges}bridges-${state.citadels}citadel-WUBR-${state.weights.join('-')}.json`;
     document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
   });
   Object.entries(D.boulder_hate.config.scenarios).forEach(([value,s])=>{const option=node('option','',s.label);option.value=value;$('stress-scenario').append(option);});
   $('stress-scenario').addEventListener('change',()=>{state.scenario=$('stress-scenario').value;renderStress();updateURL();});
-  $('stress-citadels').addEventListener('change',()=>{state.citadels=Number($('stress-citadels').value);renderStress();updateURL();});
+  $('stress-citadels').addEventListener('change',()=>{state.citadels=Number($('stress-citadels').value);renderStress();renderWeights();updateURL();});
   $('stress-turn').addEventListener('change',()=>{state.stressTurn=Number($('stress-turn').value);renderStress();updateURL();});
   $('stress-frequency').addEventListener('input',()=>{state.frequency=Number($('stress-frequency').value);renderStress();updateURL();});
-  $('decision-boulders').addEventListener('change',()=>{state.decisionBoulders=Number($('decision-boulders').value);renderDecisionMatrix();updateURL();});
-  $('decision-position').addEventListener('change',()=>{state.decisionPosition=$('decision-position').value;renderDecisionMatrix();updateURL();});
-  $('decision-budget').addEventListener('change',()=>{state.decisionBudget=Number($('decision-budget').value);renderDecisionMatrix();updateURL();});
+  $('decision-boulders').addEventListener('change',()=>{state.decisionBoulders=Number($('decision-boulders').value);renderFinalDecision();updateURL();});
+  $('decision-citadels').addEventListener('change',()=>{state.citadels=Number($('decision-citadels').value);renderFinalDecision();renderWeights();renderStress();updateURL();});
+  $('decision-position').addEventListener('change',()=>{state.decisionPosition=$('decision-position').value;renderFinalDecision();updateURL();});
+  $('decision-budget').addEventListener('change',()=>{state.decisionBudget=Number($('decision-budget').value);renderFinalDecision();updateURL();});
+  $('decision-criterion').addEventListener('change',()=>{state.decisionCriterion=$('decision-criterion').value;renderFinalDecision();updateURL();});
   document.querySelectorAll('a[href="#overview"]').forEach(link => link.addEventListener('click', event => { event.preventDefault(); activateTab('overview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }));
-  addEventListener('hashchange', () => { const tab = location.hash.slice(1); if (['overview', 'parts', 'composition', 'profiles', 'stress', 'method', 'documents'].includes(tab)) activateTab(tab); });
+  addEventListener('hashchange', () => { const tab = location.hash.slice(1); if (['overview', 'decision', 'parts', 'composition', 'profiles', 'stress', 'method', 'documents'].includes(tab)) activateTab(tab); });
   let resizeTimer;
   addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => { renderFixedCharts(); renderPartOne(); renderPartTwo(); renderProfiles(); renderStress(); }, 120);
+    resizeTimer = setTimeout(() => { renderFixedCharts(); renderPartOne(); renderPartTwo(); renderProfiles(); renderStress();renderFinalDecision(); }, 120);
   });
   renderFixedCharts(); renderMethod(); renderDocument(); renderWeights(); syncControls(); activateTab(state.tab);
   document.body.dataset.ready = 'true';

@@ -55,15 +55,15 @@
     },
     "boulder-hate-results.json": {
       "source": "results/boulder_hate/results.json",
-      "sha256": "be187c985ecdbe276fdfb07970115aa5c308da2fbc2d2f1262c02c84a73e1cc2"
+      "sha256": "b31129638e15a8db3b1faaa4a79b3463abc4553b06e5b2c0663b2bcb8111d3b3"
     },
     "boulder-hate-metrics.csv": {
       "source": "results/boulder_hate/metrics.csv",
-      "sha256": "ff04fd64921d47f42b7564cef1264ad7adc0a665dff396989b0f5d2b1d0fa95c"
+      "sha256": "21469bc5ac27d66400abe97ea43764931ac2de622d90af861927541200ad4ba0"
     },
     "boulder-hate-report.md": {
       "source": "results/boulder_hate/informe.md",
-      "sha256": "5f09cd21c703ac3bce0efe6e5d8222656842f077867f7aaf7db874857667d719"
+      "sha256": "00cf27e692928487b1452b2bba81097e930434f35736207444526edcb0f4c663"
     }
   }
 }

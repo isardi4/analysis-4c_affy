@@ -33,7 +33,7 @@ def main():
     page = Page()
     page.feed((SITE/'index.html').read_text())
     assert len(page.ids) == len(set(page.ids)), 'Duplicate HTML ids'
-    assert page.tabs == page.panels and len(page.tabs) == 7, 'Broken tab navigation'
+    assert page.tabs == page.panels and len(page.tabs) == 8, 'Broken tab navigation'
     for path in page.local_files:
         assert (SITE/path).is_file(), f'Missing local asset: {path}'
     prefix = 'window.AFFINITY_DATA = '
@@ -79,7 +79,7 @@ def main():
         actual = hashlib.sha256((SITE/'downloads'/name).read_bytes()).hexdigest()
         assert expected == actual == item['sha256'], f'Download differs: {name}'
     assert all(d['text'] == (ROOT/d['path']).read_text() for d in data['documents'])
-    print(f'Publicación validada: siete pestañas, {expected_structural} celdas estructurales, {expected_color} de colores, {expected_stress} de Boulder/hate y {len(manifest["files"])} descargas verificadas.')
+    print(f'Publicación validada: ocho pestañas, {expected_structural} celdas estructurales, {expected_color} de colores, {expected_stress} de Boulder/hate y {len(manifest["files"])} descargas verificadas.')
 
 
 if __name__ == '__main__':

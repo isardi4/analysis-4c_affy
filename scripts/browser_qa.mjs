@@ -43,12 +43,29 @@ try {
   let ready = false;
   for (let i = 0; i < 100; i++) { ready = await evaluate('document.body?.dataset.ready === "true"'); if (ready) break; await delay(100); }
   assert(ready, 'Report did not initialize');
-  assert.equal(await evaluate('document.querySelector("[role=tab][aria-selected=true]").dataset.tab'), 'stress');
+  assert.equal(await evaluate('document.querySelector("[role=tab][aria-selected=true]").dataset.tab'), 'decision');
+  assert.equal(await evaluate('document.querySelectorAll("#decision-matrix tbody tr").length'),7);
+  assert.equal(await evaluate('document.querySelectorAll("#decision-ratio-table tbody tr").length'),7);
+  assert.equal(await evaluate('document.getElementById("panel-decision").hidden'),false);
+  assert((await evaluate('document.getElementById("decision-matrix").innerText')).includes('Ancient Grudge'));
+  assert((await evaluate('document.getElementById("decision-matrix").innerText')).includes('Gleeful Sabotage'));
+  assert((await evaluate('document.getElementById("decision-base-status").textContent')).includes('Búsqueda exacta de fuentes'));
+  await evaluate('document.getElementById("decision-criterion").value="worst";document.getElementById("decision-criterion").dispatchEvent(new Event("change"))');
+  assert((await evaluate('document.getElementById("decision-matrix-summary").textContent')).includes('peor caso'));
+  await evaluate('document.getElementById("decision-citadels").value="2";document.getElementById("decision-citadels").dispatchEvent(new Event("change"))');
+  assert((await evaluate('document.getElementById("decision-base-status").textContent')).includes('2 Citadel'));
+  assert((await evaluate('document.getElementById("decision-mono-list").innerText')).includes('Darksteel Citadel'));
+  assert.equal(await evaluate('Array.from(document.querySelectorAll("#decision-bridge-list tbody tr td:first-child,#decision-mono-list tbody tr td:first-child")).reduce((n,x)=>n+Number(x.textContent),0)'),19);
+  await evaluate('document.getElementById("decision-citadels").value="0";document.getElementById("decision-citadels").dispatchEvent(new Event("change"));document.getElementById("decision-criterion").value="average";document.getElementById("decision-criterion").dispatchEvent(new Event("change"))');
+  const decisionShot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});
+  await writeFile(`${artifacts}/final-decision-desktop.png`,Buffer.from(decisionShot.data,'base64'));
+  await evaluate('document.querySelector("[data-tab=stress]").click()');
+  assert.equal(await evaluate('document.querySelector("[role=tab][aria-selected=true]").dataset.tab'),'stress');
   assert.equal(await evaluate('document.querySelectorAll("#stress-resilience-table tbody tr").length'),14);
   assert.equal(await evaluate('document.querySelectorAll("#stress-difference-table tbody tr").length'),7);
   assert((await evaluate('document.querySelectorAll("#stress-frontier-table tbody tr").length'))>0);
   assert.equal(await evaluate('document.querySelectorAll("#stress-conditional-chart .chart-value-label").length'),14);
-  assert((await evaluate('document.getElementById("stress-sample").textContent')).includes('672.000'));
+  assert((await evaluate('document.getElementById("stress-sample").textContent')).includes('896.000'));
   let stressShot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});
   await writeFile(`${artifacts}/boulder-hate-desktop.png`,Buffer.from(stressShot.data,'base64'));
   const conditional=await evaluate('document.getElementById("stress-conditional-chart").dataset.values');
@@ -58,7 +75,7 @@ try {
   assert.notEqual(conditional,beforeMixture);
   await evaluate('document.getElementById("stress-citadels").value="2";document.getElementById("stress-citadels").dispatchEvent(new Event("change"))');
   assert.notEqual(await evaluate('document.getElementById("stress-conditional-chart").dataset.values'),conditional);
-  for(const scenario of ['none','dust','masked','vandalblast','overload','gorilla']) {
+  for(const scenario of ['none','dust','masked','vandalblast','overload','gorilla','ancient_grudge','gleeful']) {
     await evaluate(`document.getElementById('stress-scenario').value='${scenario}';document.getElementById('stress-scenario').dispatchEvent(new Event('change'))`);
     assert.equal(await evaluate('document.querySelectorAll("#stress-resilience-table tbody tr").length'),14);
   }
@@ -116,14 +133,14 @@ try {
   await evaluate('document.getElementById("policy-select").value="bridge_t1_then_untapped"; document.getElementById("policy-select").dispatchEvent(new Event("change"))');
   const after = await evaluate('document.getElementById("ratio-chart").dataset.values');
   assert.notEqual(before, after, 'Policy must change actual chart values');
-  for (const tab of ['overview', 'composition', 'profiles', 'stress', 'method', 'documents', 'parts']) {
+  for (const tab of ['overview', 'decision', 'composition', 'profiles', 'stress', 'method', 'documents', 'parts']) {
     await evaluate(`document.querySelector('[data-tab="${tab}"]').click()`);
     assert.equal(await evaluate(`document.getElementById('panel-${tab}').hidden`), false);
     assert.equal(await evaluate('Array.from(document.querySelectorAll("[role=tabpanel]")).filter(x=>!x.hidden).length'), 1);
   }
   await evaluate('document.querySelector("[data-tab=documents]").click(); document.getElementById("document-select").value="doc-1"; document.getElementById("document-select").dispatchEvent(new Event("change"))');
   assert((await evaluate('document.getElementById("document-reader").innerText')).includes('Hypergeomancer'));
-  assert.equal(await evaluate('fetch("downloads/boulder-hate-results.json").then(r=>r.json()).then(x=>x.total_trials)'),672000);
+  assert.equal(await evaluate('fetch("downloads/boulder-hate-results.json").then(r=>r.json()).then(x=>x.total_trials)'),896000);
   const downloaded = await evaluate('fetch("downloads/structural-results.json").then(r=>r.json()).then(x=>x.cells.length)');
   assert.equal(downloaded, 60);
   assert.equal(await evaluate('fetch("downloads/color-results.json").then(r=>r.json()).then(x=>x.total_trials)'),700000);
@@ -139,7 +156,7 @@ try {
   await delay(250);
   const mobile = await evaluate('({width:innerWidth, body:document.body.scrollWidth, root:document.documentElement.scrollWidth})');
   assert(mobile.body <= mobile.width + 1 && mobile.root <= mobile.width + 1, `Mobile overflow: ${JSON.stringify(mobile)}`);
-  for (const tab of ['overview', 'composition', 'profiles', 'stress', 'method', 'documents', 'parts']) {
+  for (const tab of ['overview', 'decision', 'composition', 'profiles', 'stress', 'method', 'documents', 'parts']) {
     await evaluate(`document.querySelector('[data-tab="${tab}"]').click()`);
     const dimensions = await evaluate('({width:innerWidth, body:document.body.scrollWidth})');
     assert(dimensions.body <= dimensions.width + 1, `Overflow on ${tab}`);
